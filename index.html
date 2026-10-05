@@ -13,7 +13,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;600&display=swap">
 <style>html{color-scheme:light;-webkit-text-size-adjust:100%}
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",sans-serif;background:#edf0f3;
@@ -24,72 +24,137 @@ img{max-width:100%}
 <body>
 <style>
 /* Layout: feste Kopfzeile mit Prüfungs-Countdown, Reiter als Leiste (Desktop oben, Handy unten fixiert),
-   Inhalt in einer Spalte bis 72ch, Daten in Feldkarten im Zuschnitt eines Frachtbrief-Formulars. */
+   Inhalt in einer Spalte bis 1040px, Daten in Feldkarten im Zuschnitt eines Frachtbrief-Formulars.
+   Farben entstehen aus zwei Bausteinen: einem Neutralton (--n-h/--n-s, vom Design gesetzt) und
+   einem Akzentton (--a-h/--a-s, von der Farbauswahl gesetzt). Hell und Dunkel ändern nur die Helligkeiten. */
 :root{
-  --grund:#edf0f3;            /* kühles Hellgrau, leicht blaustichig */
-  --flaeche:#ffffff;
-  --flaeche2:#f5f7f9;
-  --linie:#ccd5dd;
-  --linie-stark:#9fafbd;
-  --text:#141e28;
-  --leise:#58687a;
-  --signal:#0b4f9e;           /* Verkehrsblau */
-  --signal-weich:#dbe6f5;
-  --signal-text:#0b4f9e;
-  --achtung:#9a6a00;          /* Signalgelb, lesbar gesetzt */
-  --achtung-weich:#f8eccd;
-  --gut:#15704a;
-  --gut-weich:#d6ece0;
-  --schlecht:#a8261d;
-  --schlecht-weich:#f6dcd9;
+  --n-h:210; --n-s:14%;          /* Neutralton */
+  --a-h:212; --a-s:85%; --a-l:33%;   /* Akzentton, Helligkeit im Hellmodus */
+
+  --grund:hsl(var(--n-h) var(--n-s) 94%);
+  --flaeche:hsl(var(--n-h) var(--n-s) 99.5%);
+  --flaeche2:hsl(var(--n-h) var(--n-s) 96.5%);
+  --linie:hsl(var(--n-h) var(--n-s) 84%);
+  --linie-stark:hsl(var(--n-h) var(--n-s) 66%);
+  --text:hsl(var(--n-h) calc(var(--n-s) + 20%) 12%);
+  --leise:hsl(var(--n-h) calc(var(--n-s) + 6%) 40%);
+
+  --signal:hsl(var(--a-h) var(--a-s) var(--a-l));
+  --signal-weich:hsl(var(--a-h) calc(var(--a-s) * 0.55) 90%);
+  --signal-text:hsl(var(--a-h) var(--a-s) calc(var(--a-l) - 3%));
+  --auf-signal:hsl(var(--a-h) 40% 99%);
+
+  --gut:hsl(152 58% 27%);
+  --gut-weich:hsl(152 42% 88%);
+  --auf-gut:hsl(152 40% 99%);
+  --achtung:hsl(36 88% 28%);
+  --achtung-weich:hsl(38 72% 88%);
+  --schlecht:hsl(6 68% 40%);
+  --schlecht-weich:hsl(6 62% 92%);
+  --auf-schlecht:hsl(6 40% 99%);
+
   --schrift-display:"Barlow Condensed","Arial Narrow",Helvetica,sans-serif;
   --schrift-text:"Barlow","Helvetica Neue",Arial,sans-serif;
   --schrift-daten:"IBM Plex Mono",ui-monospace,"Courier New",monospace;
+  --versal:.08em;                /* Laufweite der Versalzeilen */
   --radius:10px;
-  --schatten:0 1px 2px rgba(20,30,40,.06),0 6px 18px rgba(20,30,40,.05);
+  --rahmen:1px;
+  --schatten:0 1px 2px hsl(var(--n-h) 20% 20% / .07),0 6px 18px hsl(var(--n-h) 20% 20% / .06);
+  --karte-pad:14px;
+  color-scheme:light;
 }
+
+/* ---- Dunkel: nur Helligkeiten neu, Bausteine bleiben ---- */
 @media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --grund:#0f151b;
-    --flaeche:#17202a;
-    --flaeche2:#1d2832;
-    --linie:#2b3845;
-    --linie-stark:#415263;
-    --text:#e6edf4;
-    --leise:#97a8b9;
-    --signal:#6fa8ef;
-    --signal-weich:#1b2c42;
-    --signal-text:#9cc4f5;
-    --achtung:#e0b457;
-    --achtung-weich:#33290f;
-    --gut:#6ed0a0;
-    --gut-weich:#132a1f;
-    --schlecht:#f0908a;
-    --schlecht-weich:#331715;
-    --schatten:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.28);
+  :root:not([data-theme="light"]):not([data-modus="hell"]){
+    --grund:hsl(var(--n-h) calc(var(--n-s) + 4%) 10%);
+    --flaeche:hsl(var(--n-h) calc(var(--n-s) + 3%) 14.5%);
+    --flaeche2:hsl(var(--n-h) calc(var(--n-s) + 3%) 18.5%);
+    --linie:hsl(var(--n-h) calc(var(--n-s) + 2%) 26%);
+    --linie-stark:hsl(var(--n-h) var(--n-s) 42%);
+    --text:hsl(var(--n-h) calc(var(--n-s) + 8%) 93%);
+    --leise:hsl(var(--n-h) calc(var(--n-s) - 2%) 66%);
+    --signal:hsl(var(--a-h) calc(var(--a-s) * 0.78) 64%);
+    --signal-weich:hsl(var(--a-h) calc(var(--a-s) * 0.5) 21%);
+    --signal-text:hsl(var(--a-h) calc(var(--a-s) * 0.72) 78%);
+    --auf-signal:hsl(var(--a-h) 55% 9%);
+    --gut:hsl(152 52% 62%);
+    --gut-weich:hsl(152 38% 16%);
+    --auf-gut:hsl(152 55% 8%);
+    --achtung:hsl(38 78% 66%);
+    --achtung-weich:hsl(38 48% 17%);
+    --schlecht:hsl(6 78% 72%);
+    --schlecht-weich:hsl(6 42% 19%);
+    --auf-schlecht:hsl(6 55% 10%);
+    --schatten:0 1px 2px hsl(0 0% 0% / .45),0 6px 18px hsl(0 0% 0% / .3);
     color-scheme:dark;
   }
 }
-:root[data-theme="dark"]{
-  --grund:#0f151b;
-  --flaeche:#17202a;
-  --flaeche2:#1d2832;
-  --linie:#2b3845;
-  --linie-stark:#415263;
-  --text:#e6edf4;
-  --leise:#97a8b9;
-  --signal:#6fa8ef;
-  --signal-weich:#1b2c42;
-  --signal-text:#9cc4f5;
-  --achtung:#e0b457;
-  --achtung-weich:#33290f;
-  --gut:#6ed0a0;
-  --gut-weich:#132a1f;
-  --schlecht:#f0908a;
-  --schlecht-weich:#331715;
-  --schatten:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.28);
+:root[data-theme="dark"]:not([data-modus="hell"]),
+:root[data-modus="dunkel"]{
+  --grund:hsl(var(--n-h) calc(var(--n-s) + 4%) 10%);
+  --flaeche:hsl(var(--n-h) calc(var(--n-s) + 3%) 14.5%);
+  --flaeche2:hsl(var(--n-h) calc(var(--n-s) + 3%) 18.5%);
+  --linie:hsl(var(--n-h) calc(var(--n-s) + 2%) 26%);
+  --linie-stark:hsl(var(--n-h) var(--n-s) 42%);
+  --text:hsl(var(--n-h) calc(var(--n-s) + 8%) 93%);
+  --leise:hsl(var(--n-h) calc(var(--n-s) - 2%) 66%);
+  --signal:hsl(var(--a-h) calc(var(--a-s) * 0.78) 64%);
+  --signal-weich:hsl(var(--a-h) calc(var(--a-s) * 0.5) 21%);
+  --signal-text:hsl(var(--a-h) calc(var(--a-s) * 0.72) 78%);
+  --auf-signal:hsl(var(--a-h) 55% 9%);
+  --gut:hsl(152 52% 62%);
+  --gut-weich:hsl(152 38% 16%);
+  --auf-gut:hsl(152 55% 8%);
+  --achtung:hsl(38 78% 66%);
+  --achtung-weich:hsl(38 48% 17%);
+  --schlecht:hsl(6 78% 72%);
+  --schlecht-weich:hsl(6 42% 19%);
+  --auf-schlecht:hsl(6 55% 10%);
+  --schatten:0 1px 2px hsl(0 0% 0% / .45),0 6px 18px hsl(0 0% 0% / .3);
   color-scheme:dark;
 }
+
+/* ---- Akzentfarben ---- */
+:root[data-akzent="verkehrsblau"]{--a-h:212;--a-s:85%}
+:root[data-akzent="rostrot"]{--a-h:14;--a-s:72%}
+:root[data-akzent="tanne"]{--a-h:160;--a-s:60%;--a-l:27%}
+:root[data-akzent="bernstein"]{--a-h:34;--a-s:78%}
+:root[data-akzent="pflaume"]{--a-h:288;--a-s:45%}
+:root[data-akzent="stahl"]{--a-h:206;--a-s:16%}
+
+/* ---- Designs ---- */
+:root[data-stil="frachtbrief"]{
+  --n-h:36; --n-s:16%;
+  --schrift-display:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --schrift-text:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --versal:.14em;
+  --radius:3px;
+  --schatten:none;
+}
+:root[data-stil="frachtbrief"] .karte{border-color:var(--linie-stark)}
+:root[data-stil="frachtbrief"] h1,
+:root[data-stil="frachtbrief"] h2,
+:root[data-stil="frachtbrief"] h3,
+:root[data-stil="frachtbrief"] h4{letter-spacing:-.005em}
+:root[data-stil="frachtbrief"] .karte-kopf{background:transparent;border-bottom-style:double;border-bottom-width:3px}
+
+:root[data-stil="kompakt"]{
+  --radius:6px;
+  --schatten:none;
+  --karte-pad:10px;
+  font-size:15px;
+}
+:root[data-stil="kompakt"] .karte-kopf{padding:7px 11px}
+:root[data-stil="kompakt"] .bereich-zeile{padding:8px 11px}
+:root[data-stil="kompakt"] .stapel{gap:10px}
+:root[data-stil="kompakt"] th,
+:root[data-stil="kompakt"] td{padding:5px 8px}
+:root[data-stil="kompakt"] .lernkarte{min-height:160px;padding:18px 16px}
+:root[data-stil="kompakt"] .lernkarte .vorn{font-size:1.3rem}
+:root[data-stil="kompakt"] .kennzahl b{font-size:1.45rem}
+:root[data-stil="kompakt"] .option{padding:8px 10px}
+
 *{box-sizing:border-box}
 html,body{margin:0}
 body{
@@ -123,7 +188,7 @@ a{color:var(--signal-text)}
 .marke{display:flex;align-items:center;gap:9px;min-width:0}
 .marke-code{
   font-family:var(--schrift-daten);font-size:.72rem;font-weight:500;
-  background:var(--signal);color:#fff;border-radius:4px;padding:3px 6px;letter-spacing:.06em;
+  background:var(--signal);color:var(--auf-signal);border-radius:4px;padding:3px 6px;letter-spacing:.06em;
 }
 .marke-name{font-family:var(--schrift-display);font-weight:700;font-size:1.05rem;letter-spacing:.01em;white-space:nowrap}
 .marke-zusatz{font-size:.74rem;color:var(--leise);white-space:nowrap}
@@ -148,7 +213,7 @@ a{color:var(--signal-text)}
 .reiter button{
   background:none;border:0;border-bottom:2px solid transparent;cursor:pointer;
   font-family:var(--schrift-display);font-weight:600;font-size:.84rem;text-transform:uppercase;
-  letter-spacing:.08em;color:var(--leise);padding:11px 11px 9px;white-space:nowrap;
+  letter-spacing:var(--versal);color:var(--leise);padding:11px 11px 9px;white-space:nowrap;
 }
 .reiter button[aria-selected="true"]{color:var(--signal-text);border-bottom-color:var(--signal)}
 .reiter button:focus-visible{outline:2px solid var(--signal);outline-offset:-2px;border-radius:4px}
@@ -157,7 +222,7 @@ main{max-width:1040px;margin:0 auto;padding-block:20px 40px;padding-left:16px;pa
 
 /* ---------- Bausteine ---------- */
 .karte{
-  background:var(--flaeche);border:1px solid var(--linie);border-radius:var(--radius);
+  background:var(--flaeche);border:var(--rahmen) solid var(--linie);border-radius:var(--radius);
   box-shadow:var(--schatten);
 }
 .karte-kopf{
@@ -167,17 +232,17 @@ main{max-width:1040px;margin:0 auto;padding-block:20px 40px;padding-left:16px;pa
 }
 .karte-kopf h3{font-size:1rem}
 .feldname{
-  font-family:var(--schrift-display);font-size:.7rem;text-transform:uppercase;letter-spacing:.11em;
+  font-family:var(--schrift-display);font-size:.7rem;text-transform:uppercase;letter-spacing:calc(var(--versal) + .03em);
   color:var(--leise);font-weight:600;
 }
-.karte-leib{padding:14px}
+.karte-leib{padding:var(--karte-pad)}
 .stapel{display:flex;flex-direction:column;gap:16px}
 .reihe{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .zahl{font-family:var(--schrift-daten);font-variant-numeric:tabular-nums}
 
 .knopf{
-  border:1px solid var(--signal);background:var(--signal);color:#fff;
-  border-radius:8px;padding:10px 16px;cursor:pointer;font-weight:600;
+  border:1px solid var(--signal);background:var(--signal);color:var(--auf-signal);
+  border-radius:calc(var(--radius) - 2px);padding:10px 16px;cursor:pointer;font-weight:600;
   font-family:var(--schrift-text);line-height:1.2;
 }
 .knopf:hover{filter:brightness(1.07)}
@@ -185,7 +250,7 @@ main{max-width:1040px;margin:0 auto;padding-block:20px 40px;padding-left:16px;pa
 .knopf.leise:hover{background:var(--flaeche2);filter:none}
 .knopf.klein{padding:7px 11px;font-size:.88rem}
 .knopf:disabled{opacity:.45;cursor:default;filter:none}
-.knopf:focus-visible,.option:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+.knopf:focus-visible,.option:focus-visible,.farbfeld:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
 
 .chip{
   font-family:var(--schrift-daten);font-size:.72rem;padding:2px 7px;border-radius:5px;
@@ -205,29 +270,41 @@ main{max-width:1040px;margin:0 auto;padding-block:20px 40px;padding-left:16px;pa
 .gitter.drei{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
 
 label.feld{display:flex;flex-direction:column;gap:4px;min-width:0}
-label.feld > span{font-family:var(--schrift-display);font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--leise);font-weight:600}
+label.feld > span{font-family:var(--schrift-display);font-size:.72rem;text-transform:uppercase;letter-spacing:calc(var(--versal) + .02em);color:var(--leise);font-weight:600}
 input[type=number],input[type=text],input[type=date],select{
-  background:var(--flaeche);border:1px solid var(--linie-stark);border-radius:7px;padding:8px 10px;
+  background:var(--flaeche);border:1px solid var(--linie-stark);border-radius:calc(var(--radius) - 3px);padding:8px 10px;
   font-family:var(--schrift-daten);font-size:.95rem;width:100%;min-width:0;
 }
 input:focus,select:focus{outline:2px solid var(--signal);outline-offset:-1px;border-color:var(--signal)}
 
 table{border-collapse:collapse;width:100%;font-size:.9rem}
 th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--linie);vertical-align:top}
-th{font-family:var(--schrift-display);font-size:.74rem;text-transform:uppercase;letter-spacing:.09em;color:var(--leise);font-weight:600;white-space:nowrap}
+th{font-family:var(--schrift-display);font-size:.74rem;text-transform:uppercase;letter-spacing:calc(var(--versal) + .01em);color:var(--leise);font-weight:600;white-space:nowrap}
 td.num,th.num{text-align:right;font-family:var(--schrift-daten);font-variant-numeric:tabular-nums}
 .tabelle-rahmen{overflow-x:auto}
 
 .hinweis{
   font-size:.86rem;color:var(--leise);border-left:2px solid var(--linie-stark);padding-left:10px;
 }
-.notiz{background:var(--achtung-weich);color:var(--achtung);border-radius:8px;padding:10px 12px;font-size:.88rem}
+.notiz{background:var(--achtung-weich);color:var(--achtung);border-radius:calc(var(--radius) - 2px);padding:10px 12px;font-size:.88rem}
+
+/* ---------- Darstellung ---------- */
+.wahlreihe{display:flex;gap:6px;flex-wrap:wrap}
+.wahlreihe button{
+  background:var(--flaeche);border:1px solid var(--linie-stark);border-radius:calc(var(--radius) - 3px);
+  padding:7px 12px;cursor:pointer;font-size:.88rem;line-height:1.2;
+}
+.wahlreihe button[aria-pressed="true"]{background:var(--signal-weich);border-color:var(--signal);color:var(--signal-text);font-weight:600}
+.farbfeld{
+  width:34px;height:34px;border-radius:50%;border:2px solid var(--linie);cursor:pointer;padding:0;
+}
+.farbfeld[aria-pressed="true"]{border-color:var(--text);box-shadow:0 0 0 2px var(--flaeche) inset}
 
 /* ---------- Start ---------- */
 .frist-feld{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
 .kennzahl{display:flex;flex-direction:column;gap:2px}
 .kennzahl b{font-family:var(--schrift-display);font-size:1.75rem;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
-.kennzahl span{font-size:.76rem;color:var(--leise);text-transform:uppercase;letter-spacing:.08em;font-family:var(--schrift-display);font-weight:600}
+.kennzahl span{font-size:.76rem;color:var(--leise);text-transform:uppercase;letter-spacing:var(--versal);font-family:var(--schrift-display);font-weight:600}
 .bereich-zeile{display:flex;flex-direction:column;gap:7px;padding:12px 14px;border-bottom:1px solid var(--linie)}
 .bereich-zeile:last-child{border-bottom:0}
 .bereich-kopf{display:flex;gap:9px;align-items:baseline;flex-wrap:wrap}
@@ -247,7 +324,7 @@ td.num,th.num{text-align:right;font-family:var(--schrift-daten);font-variant-num
 /* ---------- Quiz ---------- */
 .option{
   display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;
-  background:var(--flaeche);border:1px solid var(--linie-stark);border-radius:9px;
+  background:var(--flaeche);border:1px solid var(--linie-stark);border-radius:calc(var(--radius) - 1px);
   padding:11px 13px;cursor:pointer;line-height:1.4;
 }
 .option:hover:not(:disabled){border-color:var(--signal);background:var(--signal-weich)}
@@ -258,11 +335,11 @@ td.num,th.num{text-align:right;font-family:var(--schrift-daten);font-variant-num
 }
 .option[data-stand="richtig"]{border-color:var(--gut);background:var(--gut-weich)}
 .option[data-stand="falsch"]{border-color:var(--schlecht);background:var(--schlecht-weich)}
-.option[data-stand="richtig"] .marke-opt{background:var(--gut);color:#fff;border-color:transparent}
-.option[data-stand="falsch"] .marke-opt{background:var(--schlecht);color:#fff;border-color:transparent}
+.option[data-stand="richtig"] .marke-opt{background:var(--gut);color:var(--auf-gut);border-color:transparent}
+.option[data-stand="falsch"] .marke-opt{background:var(--schlecht);color:var(--auf-schlecht);border-color:transparent}
 .option:disabled{cursor:default}
-.loesungsblock{border-radius:9px;padding:12px 13px;font-size:.92rem;background:var(--flaeche2);border:1px solid var(--linie)}
-.loesungsblock b{font-family:var(--schrift-display);text-transform:uppercase;font-size:.74rem;letter-spacing:.09em;display:block;margin-bottom:3px;color:var(--leise)}
+.loesungsblock{border-radius:calc(var(--radius) - 1px);padding:12px 13px;font-size:.92rem;background:var(--flaeche2);border:1px solid var(--linie)}
+.loesungsblock b{font-family:var(--schrift-display);text-transform:uppercase;font-size:.74rem;letter-spacing:calc(var(--versal) + .01em);display:block;margin-bottom:3px;color:var(--leise)}
 
 /* ---------- Prüfung ---------- */
 .uhr{font-family:var(--schrift-daten);font-size:1.5rem;font-variant-numeric:tabular-nums}
@@ -281,7 +358,7 @@ td.num,th.num{text-align:right;font-family:var(--schrift-daten);font-variant-num
   .reiter{
     position:fixed;top:auto;bottom:0;left:0;right:0;border-top:1px solid var(--linie);border-bottom:0;
     padding-bottom:env(safe-area-inset-bottom,0px);z-index:40;
-    box-shadow:0 -4px 16px rgba(20,30,40,.08);
+    box-shadow:0 -4px 16px hsl(var(--n-h) 20% 20% / .1);
   }
   .reiter-innen{padding-inline:4px;gap:0;justify-content:space-between}
   .reiter button{
@@ -1367,9 +1444,30 @@ const SPEICHER_KEY = "pruefungstrainer-spl-v1";
 const BOX_TAGE = [0, 1, 3, 7, 16];   /* Leitner-Intervalle in Tagen je Box 1..5 */
 const TAG_MS = 86400000;
 
+/* Darstellung: Helligkeit, Akzentfarbe und Design */
+const MODI = [
+  { id: "system", name: "System" },
+  { id: "hell", name: "Hell" },
+  { id: "dunkel", name: "Dunkel" }
+];
+const AKZENTE = [
+  { id: "verkehrsblau", name: "Verkehrsblau", h: 212, s: 85 },
+  { id: "rostrot", name: "Rostrot", h: 14, s: 72 },
+  { id: "tanne", name: "Tannengrün", h: 160, s: 60 },
+  { id: "bernstein", name: "Bernstein", h: 34, s: 78 },
+  { id: "pflaume", name: "Pflaume", h: 288, s: 45 },
+  { id: "stahl", name: "Stahlgrau", h: 206, s: 16 }
+];
+const STILE = [
+  { id: "terminal", name: "Terminal", info: "Schmale Versalschrift wie auf Verkehrsschildern, abgesetzte Karten mit leichtem Schatten." },
+  { id: "frachtbrief", name: "Frachtbrief", info: "Serifenschrift auf Papierton, Doppellinien und harte Kanten wie im Speditionsformular." },
+  { id: "kompakt", name: "Kompakt", info: "Enger gesetzt und ohne Schatten – mehr Inhalt je Bildschirm, gut zum schnellen Durchgehen." }
+];
+
 const leerFortschritt = () => ({
   stand: 0,
   termin: null,
+  design: { modus: "system", akzent: "verkehrsblau", stil: "terminal" },
   tagesziel: 20,
   heute: { datum: "", karten: 0 },
   serie: 0,
@@ -1530,7 +1628,17 @@ function wechsle(name) {
   window.scrollTo(0, 0);
 }
 
+function designAnwenden() {
+  const d = (F.design = Object.assign({ modus: "system", akzent: "verkehrsblau", stil: "terminal" }, F.design));
+  const r = document.documentElement;
+  if (d.modus === "hell" || d.modus === "dunkel") r.setAttribute("data-modus", d.modus);
+  else r.removeAttribute("data-modus");
+  r.setAttribute("data-akzent", d.akzent);
+  r.setAttribute("data-stil", d.stil);
+}
+
 function zeichne() {
+  designAnwenden();
   kopfZeichnen();
   if (S.ansicht === "start") rStart();
   if (S.ansicht === "karten") rKarten();
@@ -1607,6 +1715,8 @@ function rStart() {
   });
   html += '</tbody></table></div><div class="karte-leib"><p class="hinweis">Bestanden ist die Prüfung, wenn das Gesamtergebnis und mindestens drei Prüfungsbereiche ausreichend sind – darunter zwingend „Leistungserstellung in Spedition und Logistik“. Deshalb ist dieser Bereich hier als Sperrfach markiert.</p></div></div>';
 
+  html += darstellungHtml();
+
   html += '<div class="karte"><div class="karte-leib"><p class="hinweis">Begleit-App zu „Prüfungswissen KOMPAKT – Kaufmann/Kauffrau für Spedition und Logistikdienstleistung“ (Oppenberg/Schimpf, Westermann). Fragen, Lernkarten und Tabellen sind eigenständig formuliert und folgen den vier Prüfungsbereichen der IHK-Abschlussprüfung; Beträge und Beitragssätze sind mit Stand 2026 angegeben und vor der Prüfung gegen die aktuellen Werte zu prüfen.</p></div></div>';
 
   $("#v-start").innerHTML = html;
@@ -1622,7 +1732,32 @@ function rStart() {
     const v = parseInt(e.target.value, 10);
     F.tagesziel = isFinite(v) && v > 0 ? v : 20; sichern(); rStart();
   });
+
+  const waehle = (feld, wert) => { F.design[feld] = wert; designAnwenden(); sichern(); rStart(); };
+  alle("[data-modus-wahl]", $("#v-start")).forEach(b => b.addEventListener("click", () => waehle("modus", b.dataset.modusWahl)));
+  alle("[data-akzent-wahl]", $("#v-start")).forEach(b => b.addEventListener("click", () => waehle("akzent", b.dataset.akzentWahl)));
+  alle("[data-stil-wahl]", $("#v-start")).forEach(b => b.addEventListener("click", () => waehle("stil", b.dataset.stilWahl)));
+
   syncHinweis(!!dbRef);
+}
+
+function darstellungHtml() {
+  const d = F.design;
+  const stil = STILE.find(s => s.id === d.stil) || STILE[0];
+  const knopfreihe = (eintraege, attribut, aktiv) => '<div class="wahlreihe">' + eintraege.map(e =>
+    '<button type="button" ' + attribut + '="' + e.id + '" aria-pressed="' + (e.id === aktiv) + '">' + esc(e.name) + "</button>").join("") + "</div>";
+
+  return '<div class="karte"><div class="karte-kopf"><h3>Darstellung</h3>' +
+    '<span class="chip" style="margin-left:auto">wird mitgespeichert</span></div>' +
+    '<div class="karte-leib stapel">' +
+      '<div class="stapel" style="gap:7px"><span class="feldname">Helligkeit</span>' + knopfreihe(MODI, "data-modus-wahl", d.modus) + "</div>" +
+      '<div class="stapel" style="gap:7px"><span class="feldname">Akzentfarbe</span><div class="wahlreihe">' +
+        AKZENTE.map(a => '<button type="button" class="farbfeld" data-akzent-wahl="' + a.id + '" title="' + esc(a.name) + '" aria-label="' + esc(a.name) + '"' +
+          ' aria-pressed="' + (a.id === d.akzent) + '" style="background:hsl(' + a.h + " " + a.s + '% 45%)"></button>').join("") +
+      "</div></div>" +
+      '<div class="stapel" style="gap:7px"><span class="feldname">Design</span>' + knopfreihe(STILE, "data-stil-wahl", d.stil) +
+        '<p class="hinweis">' + esc(stil.info) + "</p></div>" +
+    "</div></div>";
 }
 
 function kennzahl(wert, bezeichnung) {
