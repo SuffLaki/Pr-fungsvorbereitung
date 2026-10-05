@@ -306,10 +306,15 @@ td.num,th.num{text-align:right;font-family:var(--schrift-daten);font-variant-num
   padding:7px 12px;cursor:pointer;font-size:.88rem;line-height:1.2;
 }
 .wahlreihe button[aria-pressed="true"]{background:var(--signal-weich);border-color:var(--signal);color:var(--signal-text);font-weight:600}
-.farbfeld{
-  width:34px;height:34px;border-radius:50%;border:2px solid var(--linie);cursor:pointer;padding:0;
+/* zwei Klassen, damit die Regeln die allgemeinen Knopfregeln der Reihe überstimmen */
+.wahlreihe .farbfeld{
+  width:36px;height:36px;border-radius:50%;cursor:pointer;padding:0;overflow:hidden;
+  border:1px solid var(--linie-stark);
 }
-.farbfeld[aria-pressed="true"]{border-color:var(--text);box-shadow:0 0 0 2px var(--flaeche) inset}
+.wahlreihe .farbfeld[aria-pressed="true"]{
+  border-color:var(--text);
+  box-shadow:0 0 0 2px var(--flaeche),0 0 0 4px var(--signal);
+}
 
 /* ---------- Start ---------- */
 .frist-feld{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
@@ -1673,12 +1678,17 @@ function dunkelAktiv() {
   return !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
 }
 
-/* Farbe einer Hintergrund-Probe, passend zum aktuellen Hell-/Dunkelzustand */
+/* Hintergrund-Probe: zeigt den Ton als kleine Seitenvorschau mit Textbalken,
+   sonst wären die hellen Töne auf der weißen Karte kaum zu erkennen. */
 function grundProbe(g) {
   let h = g.h, s = g.s;
-  if (g.id === "design") { const dunkelton = F.design.stil === "frachtbrief"; h = dunkelton ? 36 : 210; s = dunkelton ? 16 : 14; }
+  if (g.id === "design") { const papier = F.design.stil === "frachtbrief"; h = papier ? 36 : 210; s = papier ? 16 : 14; }
   if (g.id === "akzent") { const a = AKZENTE.find(x => x.id === F.design.akzent) || AKZENTE[0]; h = a.h; s = 12; }
-  return "hsl(" + h + " " + s + "% " + (dunkelAktiv() ? 14 : 92) + "%)";
+  const dunkel = dunkelAktiv();
+  const rund = x => Math.round(x * 10) / 10;
+  const flaeche = "hsl(" + h + " " + rund(dunkel ? s * 1.2 : s) + "% " + (dunkel ? 14.5 : 94) + "%)";
+  const schrift = "hsl(" + h + " " + rund(dunkel ? s * 1.4 : s * 1.6) + "% " + (dunkel ? 93 : 12) + "%)";
+  return "linear-gradient(" + schrift + " 0 34%, " + flaeche + " 34% 100%)";
 }
 
 function zeichne() {
@@ -1789,6 +1799,8 @@ function rStart() {
 function darstellungHtml() {
   const d = F.design;
   const stil = STILE.find(s => s.id === d.stil) || STILE[0];
+  const akzentJetzt = AKZENTE.find(a => a.id === d.akzent) || AKZENTE[0];
+  const grundJetzt = GRUENDE.find(g => g.id === d.grund) || GRUENDE[0];
   const knopfreihe = (eintraege, attribut, aktiv) => '<div class="wahlreihe">' + eintraege.map(e =>
     '<button type="button" ' + attribut + '="' + e.id + '" aria-pressed="' + (e.id === aktiv) + '">' + esc(e.name) + "</button>").join("") + "</div>";
 
@@ -1799,11 +1811,11 @@ function darstellungHtml() {
       '<div class="stapel" style="gap:7px"><span class="feldname">Akzentfarbe</span><div class="wahlreihe">' +
         AKZENTE.map(a => '<button type="button" class="farbfeld" data-akzent-wahl="' + a.id + '" title="' + esc(a.name) + '" aria-label="' + esc(a.name) + '"' +
           ' aria-pressed="' + (a.id === d.akzent) + '" style="background:hsl(' + a.h + " " + a.s + '% 45%)"></button>').join("") +
-      "</div></div>" +
+      '</div><p class="hinweis">' + esc(akzentJetzt.name) + "</p></div>" +
       '<div class="stapel" style="gap:7px"><span class="feldname">Hintergrund</span><div class="wahlreihe">' +
         GRUENDE.map(g => '<button type="button" class="farbfeld" data-grund-wahl="' + g.id + '" title="' + esc(g.name) + '" aria-label="' + esc(g.name) + '"' +
           ' aria-pressed="' + (g.id === d.grund) + '" style="background:' + grundProbe(g) + '"></button>').join("") +
-      "</div></div>" +
+      '</div><p class="hinweis">' + esc(grundJetzt.name) + "</p></div>" +
       '<div class="stapel" style="gap:7px"><span class="feldname">Design</span>' + knopfreihe(STILE, "data-stil-wahl", d.stil) +
         '<p class="hinweis">' + esc(stil.info) + "</p></div>" +
     "</div></div>";
