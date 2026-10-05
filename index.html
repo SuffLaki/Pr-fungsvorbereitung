@@ -1,0 +1,2184 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Prüfungstrainer Spedition</title>
+<meta name="description" content="Lern-App zur IHK-Abschlussprüfung Kaufmann/-frau für Spedition und Logistikdienstleistung.">
+<meta name="theme-color" content="#0b4f9e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Prüfung SpL">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>html{color-scheme:light;-webkit-text-size-adjust:100%}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",sans-serif;background:#edf0f3;
+  -webkit-tap-highlight-color:transparent;overscroll-behavior-y:contain}
+img{max-width:100%}
+[hidden]{display:none!important}</style>
+</head>
+<body>
+<style>
+/* Layout: feste Kopfzeile mit Prüfungs-Countdown, Reiter als Leiste (Desktop oben, Handy unten fixiert),
+   Inhalt in einer Spalte bis 72ch, Daten in Feldkarten im Zuschnitt eines Frachtbrief-Formulars. */
+:root{
+  --grund:#edf0f3;            /* kühles Hellgrau, leicht blaustichig */
+  --flaeche:#ffffff;
+  --flaeche2:#f5f7f9;
+  --linie:#ccd5dd;
+  --linie-stark:#9fafbd;
+  --text:#141e28;
+  --leise:#58687a;
+  --signal:#0b4f9e;           /* Verkehrsblau */
+  --signal-weich:#dbe6f5;
+  --signal-text:#0b4f9e;
+  --achtung:#9a6a00;          /* Signalgelb, lesbar gesetzt */
+  --achtung-weich:#f8eccd;
+  --gut:#15704a;
+  --gut-weich:#d6ece0;
+  --schlecht:#a8261d;
+  --schlecht-weich:#f6dcd9;
+  --schrift-display:"Barlow Condensed","Arial Narrow",Helvetica,sans-serif;
+  --schrift-text:"Barlow","Helvetica Neue",Arial,sans-serif;
+  --schrift-daten:"IBM Plex Mono",ui-monospace,"Courier New",monospace;
+  --radius:10px;
+  --schatten:0 1px 2px rgba(20,30,40,.06),0 6px 18px rgba(20,30,40,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --grund:#0f151b;
+    --flaeche:#17202a;
+    --flaeche2:#1d2832;
+    --linie:#2b3845;
+    --linie-stark:#415263;
+    --text:#e6edf4;
+    --leise:#97a8b9;
+    --signal:#6fa8ef;
+    --signal-weich:#1b2c42;
+    --signal-text:#9cc4f5;
+    --achtung:#e0b457;
+    --achtung-weich:#33290f;
+    --gut:#6ed0a0;
+    --gut-weich:#132a1f;
+    --schlecht:#f0908a;
+    --schlecht-weich:#331715;
+    --schatten:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.28);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --grund:#0f151b;
+  --flaeche:#17202a;
+  --flaeche2:#1d2832;
+  --linie:#2b3845;
+  --linie-stark:#415263;
+  --text:#e6edf4;
+  --leise:#97a8b9;
+  --signal:#6fa8ef;
+  --signal-weich:#1b2c42;
+  --signal-text:#9cc4f5;
+  --achtung:#e0b457;
+  --achtung-weich:#33290f;
+  --gut:#6ed0a0;
+  --gut-weich:#132a1f;
+  --schlecht:#f0908a;
+  --schlecht-weich:#331715;
+  --schatten:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.28);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--grund);
+  color:var(--text);
+  font-family:var(--schrift-text);
+  font-size:16px;
+  line-height:1.5;
+  -webkit-text-size-adjust:100%;
+}
+h1,h2,h3,h4{font-family:var(--schrift-display);margin:0;text-wrap:balance;letter-spacing:.005em}
+h1{font-size:1.5rem;font-weight:700;line-height:1.15}
+h2{font-size:1.4rem;font-weight:600;line-height:1.2}
+h3{font-size:1.1rem;font-weight:600}
+p{margin:0}
+button{font:inherit;color:inherit}
+input,select{font:inherit;color:inherit}
+a{color:var(--signal-text)}
+
+/* ---------- Kopf ---------- */
+.kopf{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:30;
+  background:color-mix(in srgb,var(--flaeche) 92%,transparent);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--linie);
+}
+.kopf-innen{
+  max-width:1040px;margin:0 auto;padding-block:10px;padding-left:16px;padding-right:16px;
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+}
+.marke{display:flex;align-items:center;gap:9px;min-width:0}
+.marke-code{
+  font-family:var(--schrift-daten);font-size:.72rem;font-weight:500;
+  background:var(--signal);color:#fff;border-radius:4px;padding:3px 6px;letter-spacing:.06em;
+}
+.marke-name{font-family:var(--schrift-display);font-weight:700;font-size:1.05rem;letter-spacing:.01em;white-space:nowrap}
+.marke-zusatz{font-size:.74rem;color:var(--leise);white-space:nowrap}
+.kopf-spacer{flex:1 1 auto}
+.frist{
+  display:flex;align-items:baseline;gap:6px;
+  font-family:var(--schrift-daten);font-size:.8rem;color:var(--leise);
+  border:1px solid var(--linie);border-radius:999px;padding:4px 11px;background:var(--flaeche2);
+}
+.frist b{font-size:.95rem;color:var(--text);font-weight:500}
+
+/* ---------- Reiter ---------- */
+.reiter{
+  background:var(--flaeche);border-bottom:1px solid var(--linie);
+  position:sticky;top:calc(env(safe-area-inset-top,0px) + 53px);z-index:25;
+}
+.reiter-innen{
+  max-width:1040px;margin:0 auto;display:flex;gap:2px;padding-left:10px;padding-right:10px;
+  overflow-x:auto;scrollbar-width:none;
+}
+.reiter-innen::-webkit-scrollbar{display:none}
+.reiter button{
+  background:none;border:0;border-bottom:2px solid transparent;cursor:pointer;
+  font-family:var(--schrift-display);font-weight:600;font-size:.84rem;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--leise);padding:11px 11px 9px;white-space:nowrap;
+}
+.reiter button[aria-selected="true"]{color:var(--signal-text);border-bottom-color:var(--signal)}
+.reiter button:focus-visible{outline:2px solid var(--signal);outline-offset:-2px;border-radius:4px}
+
+main{max-width:1040px;margin:0 auto;padding-block:20px 40px;padding-left:16px;padding-right:16px}
+
+/* ---------- Bausteine ---------- */
+.karte{
+  background:var(--flaeche);border:1px solid var(--linie);border-radius:var(--radius);
+  box-shadow:var(--schatten);
+}
+.karte-kopf{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:10px 14px;border-bottom:1px solid var(--linie);background:var(--flaeche2);
+  border-radius:var(--radius) var(--radius) 0 0;
+}
+.karte-kopf h3{font-size:1rem}
+.feldname{
+  font-family:var(--schrift-display);font-size:.7rem;text-transform:uppercase;letter-spacing:.11em;
+  color:var(--leise);font-weight:600;
+}
+.karte-leib{padding:14px}
+.stapel{display:flex;flex-direction:column;gap:16px}
+.reihe{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.zahl{font-family:var(--schrift-daten);font-variant-numeric:tabular-nums}
+
+.knopf{
+  border:1px solid var(--signal);background:var(--signal);color:#fff;
+  border-radius:8px;padding:10px 16px;cursor:pointer;font-weight:600;
+  font-family:var(--schrift-text);line-height:1.2;
+}
+.knopf:hover{filter:brightness(1.07)}
+.knopf.leise{background:var(--flaeche);color:var(--text);border-color:var(--linie-stark)}
+.knopf.leise:hover{background:var(--flaeche2);filter:none}
+.knopf.klein{padding:7px 11px;font-size:.88rem}
+.knopf:disabled{opacity:.45;cursor:default;filter:none}
+.knopf:focus-visible,.option:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+
+.chip{
+  font-family:var(--schrift-daten);font-size:.72rem;padding:2px 7px;border-radius:5px;
+  background:var(--flaeche2);border:1px solid var(--linie);color:var(--leise);white-space:nowrap;
+}
+.chip.signal{background:var(--signal-weich);border-color:transparent;color:var(--signal-text)}
+.chip.gut{background:var(--gut-weich);border-color:transparent;color:var(--gut)}
+.chip.achtung{background:var(--achtung-weich);border-color:transparent;color:var(--achtung)}
+.chip.schlecht{background:var(--schlecht-weich);border-color:transparent;color:var(--schlecht)}
+
+.balken{height:7px;border-radius:999px;background:var(--flaeche2);border:1px solid var(--linie);overflow:hidden}
+.balken i{display:block;height:100%;background:var(--signal);border-radius:999px}
+.balken i.gut{background:var(--gut)}
+
+.gitter{display:grid;gap:12px}
+.gitter.zwei{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.gitter.drei{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+
+label.feld{display:flex;flex-direction:column;gap:4px;min-width:0}
+label.feld > span{font-family:var(--schrift-display);font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--leise);font-weight:600}
+input[type=number],input[type=text],input[type=date],select{
+  background:var(--flaeche);border:1px solid var(--linie-stark);border-radius:7px;padding:8px 10px;
+  font-family:var(--schrift-daten);font-size:.95rem;width:100%;min-width:0;
+}
+input:focus,select:focus{outline:2px solid var(--signal);outline-offset:-1px;border-color:var(--signal)}
+
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--linie);vertical-align:top}
+th{font-family:var(--schrift-display);font-size:.74rem;text-transform:uppercase;letter-spacing:.09em;color:var(--leise);font-weight:600;white-space:nowrap}
+td.num,th.num{text-align:right;font-family:var(--schrift-daten);font-variant-numeric:tabular-nums}
+.tabelle-rahmen{overflow-x:auto}
+
+.hinweis{
+  font-size:.86rem;color:var(--leise);border-left:2px solid var(--linie-stark);padding-left:10px;
+}
+.notiz{background:var(--achtung-weich);color:var(--achtung);border-radius:8px;padding:10px 12px;font-size:.88rem}
+
+/* ---------- Start ---------- */
+.frist-feld{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.kennzahl{display:flex;flex-direction:column;gap:2px}
+.kennzahl b{font-family:var(--schrift-display);font-size:1.75rem;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.kennzahl span{font-size:.76rem;color:var(--leise);text-transform:uppercase;letter-spacing:.08em;font-family:var(--schrift-display);font-weight:600}
+.bereich-zeile{display:flex;flex-direction:column;gap:7px;padding:12px 14px;border-bottom:1px solid var(--linie)}
+.bereich-zeile:last-child{border-bottom:0}
+.bereich-kopf{display:flex;gap:9px;align-items:baseline;flex-wrap:wrap}
+.bereich-kopf h4{font-size:1rem;font-weight:600;flex:1 1 auto;min-width:0}
+.bereich-zahlen{display:flex;gap:14px;font-size:.8rem;color:var(--leise);font-family:var(--schrift-daten);flex-wrap:wrap}
+
+/* ---------- Karten lernen ---------- */
+.lernkarte{
+  min-height:220px;display:flex;flex-direction:column;justify-content:center;gap:14px;
+  padding:26px 20px;text-align:center;cursor:pointer;
+}
+.lernkarte .vorn{font-family:var(--schrift-display);font-size:1.5rem;font-weight:600;line-height:1.2}
+.lernkarte .hinten{font-size:1rem;max-width:60ch;margin:0 auto;text-align:left}
+.lernkarte .tipp{font-size:.78rem;color:var(--leise)}
+.kartenleiste{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+/* ---------- Quiz ---------- */
+.option{
+  display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;
+  background:var(--flaeche);border:1px solid var(--linie-stark);border-radius:9px;
+  padding:11px 13px;cursor:pointer;line-height:1.4;
+}
+.option:hover:not(:disabled){border-color:var(--signal);background:var(--signal-weich)}
+.option .marke-opt{
+  font-family:var(--schrift-daten);font-size:.78rem;flex:0 0 auto;
+  width:22px;height:22px;display:grid;place-items:center;border-radius:5px;
+  background:var(--flaeche2);border:1px solid var(--linie);
+}
+.option[data-stand="richtig"]{border-color:var(--gut);background:var(--gut-weich)}
+.option[data-stand="falsch"]{border-color:var(--schlecht);background:var(--schlecht-weich)}
+.option[data-stand="richtig"] .marke-opt{background:var(--gut);color:#fff;border-color:transparent}
+.option[data-stand="falsch"] .marke-opt{background:var(--schlecht);color:#fff;border-color:transparent}
+.option:disabled{cursor:default}
+.loesungsblock{border-radius:9px;padding:12px 13px;font-size:.92rem;background:var(--flaeche2);border:1px solid var(--linie)}
+.loesungsblock b{font-family:var(--schrift-display);text-transform:uppercase;font-size:.74rem;letter-spacing:.09em;display:block;margin-bottom:3px;color:var(--leise)}
+
+/* ---------- Prüfung ---------- */
+.uhr{font-family:var(--schrift-daten);font-size:1.5rem;font-variant-numeric:tabular-nums}
+.uhr.knapp{color:var(--schlecht)}
+.fragenraster{display:flex;flex-wrap:wrap;gap:5px}
+.fragenraster button{
+  width:30px;height:30px;border-radius:6px;border:1px solid var(--linie-stark);background:var(--flaeche);
+  font-family:var(--schrift-daten);font-size:.76rem;cursor:pointer;padding:0;
+}
+.fragenraster button[data-beantwortet="ja"]{background:var(--signal-weich);border-color:var(--signal);color:var(--signal-text)}
+.fragenraster button[aria-current="true"]{outline:2px solid var(--signal);outline-offset:1px}
+
+/* ---------- Handy: Reiter unten ---------- */
+@media (max-width:719px){
+  main{padding-bottom:96px}
+  .reiter{
+    position:fixed;top:auto;bottom:0;left:0;right:0;border-top:1px solid var(--linie);border-bottom:0;
+    padding-bottom:env(safe-area-inset-bottom,0px);z-index:40;
+    box-shadow:0 -4px 16px rgba(20,30,40,.08);
+  }
+  .reiter-innen{padding-inline:4px;gap:0;justify-content:space-between}
+  .reiter button{
+    flex:1 1 0;min-width:0;font-size:.63rem;letter-spacing:.04em;padding:9px 2px;
+    border-bottom:0;border-top:2px solid transparent;text-align:center;
+  }
+  .reiter button[aria-selected="true"]{border-top-color:var(--signal);background:var(--signal-weich)}
+  .kennzahl b{font-size:1.5rem}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<header class="kopf">
+  <div class="kopf-innen">
+    <div class="marke">
+      <span class="marke-code">SpL</span>
+      <span class="marke-name">Prüfungstrainer</span>
+      <span class="marke-zusatz">Spedition &amp; Logistikdienstleistung</span>
+    </div>
+    <span class="kopf-spacer"></span>
+    <div class="frist" id="frist-anzeige"><b>—</b> <span>kein Termin gesetzt</span></div>
+  </div>
+</header>
+
+<nav class="reiter">
+  <div class="reiter-innen" role="tablist" aria-label="Bereiche">
+    <button role="tab" id="tab-start" data-ansicht="start" aria-selected="true">Start</button>
+    <button role="tab" id="tab-karten" data-ansicht="karten" aria-selected="false">Karten</button>
+    <button role="tab" id="tab-quiz" data-ansicht="quiz" aria-selected="false">Quiz</button>
+    <button role="tab" id="tab-rechnen" data-ansicht="rechnen" aria-selected="false">Rechnen</button>
+    <button role="tab" id="tab-pruefung" data-ansicht="pruefung" aria-selected="false">Prüfung</button>
+    <button role="tab" id="tab-tabellen" data-ansicht="tabellen" aria-selected="false">Tabellen</button>
+  </div>
+</nav>
+
+<main>
+  <section id="v-start" class="stapel"></section>
+  <section id="v-karten" class="stapel" hidden></section>
+  <section id="v-quiz" class="stapel" hidden></section>
+  <section id="v-rechnen" class="stapel" hidden></section>
+  <section id="v-pruefung" class="stapel" hidden></section>
+  <section id="v-tabellen" class="stapel" hidden></section>
+</main>
+
+<script>
+/* ===================== Daten ===================== */
+const BEREICHE = [
+  { id:"lel",  kurz:"Leistungserstellung", name:"Leistungserstellung in Spedition und Logistik", min:180, gewicht:25, sperr:true,  art:"schriftlich" },
+  { id:"ksk",  kurz:"Steuerung & Kontrolle", name:"Kaufmännische Steuerung und Kontrolle", min:90, gewicht:25, sperr:false, art:"schriftlich" },
+  { id:"wiso", kurz:"Wirtschaft & Soziales", name:"Wirtschafts- und Sozialkunde", min:60, gewicht:25, sperr:false, art:"schriftlich" },
+  { id:"fg",   kurz:"Fachgespräch", name:"Fallbezogenes Fachgespräch", min:30, gewicht:25, sperr:false, art:"mündlich" }
+];
+
+const THEMEN = [
+  { id:"t_recht",  b:"lel",  name:"Speditions- und Frachtrecht" },
+  { id:"t_strasse",b:"lel",  name:"Güterkraftverkehr Straße" },
+  { id:"t_sammel", b:"lel",  name:"Sammelgut, Stückgut, Ladung" },
+  { id:"t_see",    b:"lel",  name:"Seefracht" },
+  { id:"t_luft",   b:"lel",  name:"Luftfracht" },
+  { id:"t_bahn",   b:"lel",  name:"Bahn, Binnenschiff, Kombinierter Verkehr" },
+  { id:"t_lager",  b:"lel",  name:"Lager und Kontraktlogistik" },
+  { id:"t_zoll",   b:"lel",  name:"Zoll, Incoterms, Außenwirtschaft" },
+  { id:"t_vers",   b:"lel",  name:"Versicherung und Schadenabwicklung" },
+  { id:"t_gefahr", b:"lel",  name:"Gefahrgut und Ladungssicherung" },
+  { id:"t_buch",   b:"ksk",  name:"Buchführung und Jahresabschluss" },
+  { id:"t_kost",   b:"ksk",  name:"Kosten- und Leistungsrechnung" },
+  { id:"t_kalk",   b:"ksk",  name:"Kalkulation, Kennzahlen, Controlling" },
+  { id:"t_zahl",   b:"ksk",  name:"Zahlungsverkehr und Steuern" },
+  { id:"t_ausb",   b:"wiso", name:"Ausbildung, Arbeitsrecht, Mitbestimmung" },
+  { id:"t_sozial", b:"wiso", name:"Sozialversicherung und Entgelt" },
+  { id:"t_wirt",   b:"wiso", name:"Wirtschaftsordnung und Rechtsformen" },
+  { id:"t_vertrag",b:"wiso", name:"Kaufvertrag und Verbraucherschutz" },
+  { id:"t_nachh",  b:"wiso", name:"Nachhaltigkeit und Arbeitsschutz" }
+];
+
+/* Fragen: q = Frage, o = Antworten, a = Index der richtigen Antwort, e = Erklärung */
+const FRAGEN = [
+  /* ---------- Speditions- und Frachtrecht ---------- */
+  { id:"f001", t:"t_recht", q:"Was ist nach § 453 HGB die Hauptpflicht des Spediteurs?", o:[
+    "Die Besorgung der Versendung des Gutes",
+    "Die Beförderung des Gutes mit eigenen Fahrzeugen",
+    "Die Lagerung des Gutes bis zum Abruf",
+    "Die Übernahme des Eigentums am Gut"
+  ], a:0, e:"Der Spediteur organisiert die Versendung (Frachtführer auswählen, Verträge schließen, Papiere besorgen). Die Beförderung selbst schuldet der Frachtführer nach § 407 HGB." },
+  { id:"f002", t:"t_recht", q:"Der Spediteur führt die Beförderung mit eigenem Lkw selbst durch. Wie heißt dieser Fall und was folgt daraus?", o:[
+    "Selbsteintritt (§ 458 HGB) – er hat die Rechte und Pflichten eines Frachtführers",
+    "Spedition zu festen Kosten – es bleibt beim Speditionsrecht",
+    "Sammelladungsspedition – er haftet nur für Auswahlverschulden",
+    "Lagergeschäft – es gilt § 467 HGB"
+  ], a:0, e:"Beim Selbsteintritt nach § 458 HGB verdient der Spediteur die Fracht und haftet wie ein Frachtführer, also verschuldensunabhängig bis 8,33 SZR/kg." },
+  { id:"f003", t:"t_recht", q:"Welche Folge hat eine Vereinbarung über „Spedition zu festen Kosten“ (§ 459 HGB)?", o:[
+    "Der Spediteur haftet nach Frachtrecht, weil er eine Festpreisvergütung vereinbart hat",
+    "Der Spediteur haftet grundsätzlich nicht mehr für Güterschäden",
+    "Der Versender trägt alle Kosten der Zwischenlagerung",
+    "Es gilt ausschließlich das Lagerrecht"
+  ], a:0, e:"Wer einen festen Satz vereinbart, der Fracht und Nebenkosten einschließt, wird wie ein Frachtführer behandelt – mit Obhutshaftung statt bloßer Besorgungspflicht." },
+  { id:"f004", t:"t_recht", q:"Wie hoch ist die Regelhaftung des Frachtführers für Güterschäden nach § 431 HGB?", o:[
+    "8,33 Rechnungseinheiten (SZR) je Kilogramm des Rohgewichts",
+    "2 SZR je Kilogramm des Rohgewichts",
+    "17 SZR je Kilogramm des Rohgewichts",
+    "5 Euro je Kilogramm des Rohgewichts"
+  ], a:0, e:"8,33 SZR/kg Rohgewicht der ganzen Sendung – dieselbe Grenze wie in der CMR. Der SZR-Kurs wird von der Bundesbank veröffentlicht." },
+  { id:"f005", t:"t_recht", q:"Innerhalb welcher Frist muss ein äußerlich nicht erkennbarer Schaden dem Frachtführer angezeigt werden (§ 438 HGB)?", o:[
+    "Innerhalb von sieben Tagen nach Ablieferung",
+    "Sofort bei Ablieferung, sonst ist der Anspruch erloschen",
+    "Innerhalb von 14 Tagen nach Ablieferung",
+    "Innerhalb von drei Monaten nach Ablieferung"
+  ], a:0, e:"Äußerlich erkennbare Schäden müssen spätestens bei Ablieferung angezeigt werden, verdeckte Schäden innerhalb von sieben Tagen danach – sonst wird vermutet, dass das Gut vollständig abgeliefert wurde." },
+  { id:"f006", t:"t_recht", q:"Nach welcher Frist verjähren Ansprüche aus einer Beförderung nach HGB im Regelfall?", o:[
+    "Ein Jahr, bei Vorsatz oder gleichgestelltem Verschulden drei Jahre",
+    "Sechs Monate ohne Ausnahme",
+    "Zwei Jahre ohne Ausnahme",
+    "Drei Jahre, bei leichter Fahrlässigkeit ein Jahr"
+  ], a:0, e:"§ 439 HGB: Regelverjährung ein Jahr ab Ablieferung; bei Vorsatz oder Leichtfertigkeit mit Bewusstsein der Schadenswahrscheinlichkeit drei Jahre." },
+  { id:"f007", t:"t_recht", q:"Welche Rechtsnatur haben die ADSp 2017?", o:[
+    "Allgemeine Geschäftsbedingungen, die wirksam vereinbart werden müssen",
+    "Gesetz, das für alle Speditionsverträge in Deutschland gilt",
+    "Internationales Übereinkommen wie die CMR",
+    "Verordnung der IHK für Mitgliedsbetriebe"
+  ], a:0, e:"Die ADSp sind AGB der Verbände. Sie gelten nur, wenn sie in den Vertrag einbezogen wurden – gegenüber Kaufleuten genügt der Hinweis, zum Beispiel im Angebot." },
+  { id:"f008", t:"t_recht", q:"Auf welchen Betrag ist die Haftung des Spediteurs für Güterschäden im Verkehrsvertrag nach ADSp 2017 zusätzlich begrenzt?", o:[
+    "1,25 Mio. EUR je Schadenfall bzw. 2 SZR/kg – maßgeblich ist der höhere Betrag",
+    "500.000 EUR je Schadenfall ohne Alternative",
+    "5 EUR je Kilogramm wie in den ADSp 2003",
+    "Es gibt keine zusätzliche Begrenzung"
+  ], a:0, e:"Die ADSp 2017 kappen die Haftung zusätzlich bei 1,25 Mio. EUR je Schadenfall bzw. 2 SZR/kg, je nachdem was höher ist, und bei 2,5 Mio. EUR je Schadenereignis." },
+  { id:"f009", t:"t_recht", q:"Welche Funktion hat der Frachtbrief NICHT?", o:[
+    "Er ist ein Traditionspapier, mit dessen Übergabe das Eigentum am Gut übergeht",
+    "Er ist Beweisurkunde über den Abschluss und Inhalt des Frachtvertrags",
+    "Er ist Begleitpapier für die Sendung",
+    "Er ist Empfangsbescheinigung über die Übernahme des Gutes"
+  ], a:0, e:"Traditionspapier ist nur das Seefracht-Konnossement (B/L). Frachtbrief und Luftfrachtbrief sind Beweis-, Begleit- und Empfangspapiere, aber keine Wertpapiere." },
+  { id:"f010", t:"t_recht", q:"Wer haftet nach § 414 HGB, wenn eine fehlerhafte Verpackung des Absenders zu einem Schaden am Fahrzeug führt?", o:[
+    "Der Absender, verschuldensunabhängig für unrichtige Angaben und mangelhafte Verpackung",
+    "Immer der Frachtführer, weil er die Obhut über das Gut hat",
+    "Der Empfänger, weil er das Gut annimmt",
+    "Niemand, solche Schäden trägt die Versicherung des Frachtführers"
+  ], a:0, e:"§ 414 HGB begründet eine verschuldensunabhängige Absenderhaftung, u. a. für ungenügende Verpackung, Kennzeichnung und falsche Angaben – etwa bei Gefahrgut." },
+
+  /* ---------- Güterkraftverkehr Straße ---------- */
+  { id:"f011", t:"t_strasse", q:"Wann ist die CMR zwingend anzuwenden?", o:[
+    "Bei entgeltlicher Güterbeförderung auf der Straße, wenn Übernahme- und Ablieferungsort in verschiedenen Staaten liegen und mindestens einer Vertragsstaat ist",
+    "Bei jeder Beförderung mit einem Lkw über 3,5 t zGG",
+    "Nur wenn beide Staaten Vertragsstaaten der CMR sind",
+    "Bei allen grenzüberschreitenden Beförderungen unabhängig vom Verkehrsträger"
+  ], a:0, e:"Art. 1 CMR: entgeltlich, Straße, Fahrzeug, verschiedene Staaten, mindestens ein Vertragsstaat. Umzugsgut, Leichen und Postsendungen sind ausgenommen." },
+  { id:"f012", t:"t_strasse", q:"In wie vielen Ausfertigungen wird der CMR-Frachtbrief ausgestellt und wer erhält sie?", o:[
+    "Drei: Absender, Begleitexemplar für das Gut, Frachtführer",
+    "Zwei: Absender und Frachtführer",
+    "Vier: Absender, Frachtführer, Empfänger, Zoll",
+    "Eine, die beim Frachtführer bleibt"
+  ], a:0, e:"Art. 5 CMR: drei Originale – erstes für den Absender, zweites begleitet das Gut zum Empfänger, drittes bleibt beim Frachtführer." },
+  { id:"f013", t:"t_strasse", q:"Wie lang darf die tägliche Lenkzeit höchstens sein?", o:[
+    "9 Stunden, zweimal pro Woche 10 Stunden",
+    "10 Stunden, einmal pro Woche 11 Stunden",
+    "8 Stunden ohne Ausnahme",
+    "9 Stunden ohne Ausnahme"
+  ], a:0, e:"VO (EG) 561/2006: Tageslenkzeit 9 h, höchstens zweimal in der Woche 10 h. Wochenlenkzeit max. 56 h, Doppelwoche max. 90 h." },
+  { id:"f014", t:"t_strasse", q:"Wie ist die Lenkzeitunterbrechung nach 4,5 Stunden Lenkzeit geregelt?", o:[
+    "45 Minuten, aufteilbar in 15 Minuten und anschließend 30 Minuten",
+    "30 Minuten, nicht aufteilbar",
+    "45 Minuten, aufteilbar in 30 und 15 Minuten in dieser Reihenfolge",
+    "60 Minuten, beliebig aufteilbar"
+  ], a:0, e:"Nach 4,5 h Lenkzeit sind 45 Minuten Pause fällig. Teilung ist nur in der Reihenfolge 15 + 30 Minuten zulässig." },
+  { id:"f015", t:"t_strasse", q:"Ab welchem zulässigen Gesamtgewicht gilt auf Bundesfernstraßen in Deutschland die Lkw-Maut?", o:[
+    "Ab 7,5 Tonnen zGG",
+    "Ab 3,5 Tonnen zGG",
+    "Ab 12 Tonnen zGG",
+    "Ab 18 Tonnen zGG"
+  ], a:0, e:"Mautpflichtig sind Fahrzeuge ab 7,5 t zGG. Der Mautsatz setzt sich aus Teilsätzen für Infrastruktur, Luftverschmutzung, Lärm und – seit Dezember 2023 – CO₂ zusammen." },
+  { id:"f016", t:"t_strasse", q:"Wie viele Kabotagefahrten darf ein EU-Frachtführer nach einer grenzüberschreitenden Beförderung in Deutschland durchführen?", o:[
+    "Bis zu drei Fahrten innerhalb von sieben Tagen, danach vier Tage Karenz im selben Land",
+    "Beliebig viele, solange eine EU-Lizenz vorliegt",
+    "Eine Fahrt innerhalb von drei Tagen",
+    "Kabotage ist in Deutschland grundsätzlich verboten"
+  ], a:0, e:"Drei Kabotagefahrten in sieben Tagen nach Entladung der eingehenden Sendung; anschließend gilt eine viertägige Sperrfrist („cooling-off“) für dasselbe Land." },
+  { id:"f017", t:"t_strasse", q:"Welche Erlaubnis braucht ein Unternehmen für den gewerblichen Güterkraftverkehr mit Fahrzeugen über 3,5 t zGG?", o:[
+    "Erlaubnis nach GüKG bzw. EU-Lizenz für grenzüberschreitende Verkehre",
+    "Nur eine Gewerbeanmeldung",
+    "Eine Konzession der IHK",
+    "Keine, solange eigene Fahrzeuge eingesetzt werden"
+  ], a:0, e:"Voraussetzungen sind Zuverlässigkeit, finanzielle Leistungsfähigkeit und fachliche Eignung des Verkehrsleiters. Werkverkehr ist erlaubnisfrei, aber anzeigepflichtig." },
+  { id:"f018", t:"t_strasse", q:"Welcher Fall ist Werkverkehr?", o:[
+    "Ein Möbelhaus befördert eigene Waren mit eigenen Fahrzeugen und eigenem Personal zu seinen Kunden",
+    "Eine Spedition befördert Waren eines Kunden gegen Entgelt",
+    "Ein Frachtführer fährt im Auftrag eines Spediteurs",
+    "Ein Paketdienst liefert an Privatkunden"
+  ], a:0, e:"Werkverkehr ist Beförderung für eigene Zwecke als Hilfstätigkeit zum Hauptgewerbe, mit eigenem Personal und eigenen oder gemieteten Fahrzeugen – nicht gegen Entgelt für Dritte." },
+
+  /* ---------- Sammelgut, Stückgut, Ladung ---------- */
+  { id:"f019", t:"t_sammel", q:"Worin besteht der wirtschaftliche Grundgedanke des Sammelgutverkehrs?", o:[
+    "Mehrere Einzelsendungen werden zu einer Ladung gebündelt, dadurch sinken die Frachtkosten je Sendung",
+    "Jede Sendung wird direkt vom Versender zum Empfänger gefahren",
+    "Sendungen werden solange gelagert, bis der Kunde einen Abruf erteilt",
+    "Der Spediteur kauft die Ware und verkauft sie weiter"
+  ], a:0, e:"Nahverkehr zum Terminal, Hauptlauf als volle Ladung, Nahverkehr beim Empfangsspediteur: Degression der Hauptlaufkosten macht Sammelgut günstiger als viele Einzelfahrten." },
+  { id:"f020", t:"t_sammel", q:"Welche Rechtsstellung hat der Spediteur in der Sammelladung (§ 460 HGB)?", o:[
+    "Er hat hinsichtlich der Beförderung die Rechte und Pflichten eines Frachtführers",
+    "Er bleibt reiner Vermittler ohne Obhutshaftung",
+    "Er haftet nur für die Auswahl des Frachtführers",
+    "Er wird Eigentümer der Sendungen"
+  ], a:0, e:"Wer Sammelladung bildet, verdient die Fracht und haftet wie ein Frachtführer – entsprechend dem Selbsteintritt." },
+  { id:"f021", t:"t_sammel", q:"Welches Papier listet im Sammelgutverkehr alle Sendungen einer Hauptlauf-Ladung auf?", o:[
+    "Das Bordero (Ladeliste)",
+    "Das Konnossement",
+    "Der Lieferschein",
+    "Die Zollinhaltserklärung"
+  ], a:0, e:"Das Bordero ist das Begleit- und Abrechnungspapier zwischen Versand- und Empfangsspediteur und enthält Positionen, Gewichte und Frachtanteile." },
+  { id:"f022", t:"t_sammel", q:"Mit welchem Schlüssel wird im Straßenverkehr üblicherweise das frachtpflichtige Gewicht aus dem Volumen abgeleitet?", o:[
+    "1 m³ entspricht 333 kg",
+    "1 m³ entspricht 167 kg",
+    "1 m³ entspricht 1.000 kg",
+    "1 m³ entspricht 250 kg"
+  ], a:0, e:"Im Landverkehr gilt meist 1 m³ = 333 kg (Verhältnis 1:3). Frachtpflichtig ist der höhere Wert aus tatsächlichem Gewicht und Volumengewicht." },
+  { id:"f023", t:"t_sammel", q:"Mit welchem Gewicht wird ein Lademeter bei Stückgutsendungen typischerweise berechnet?", o:[
+    "Rund 1.850 kg je Lademeter",
+    "Rund 333 kg je Lademeter",
+    "Rund 1.000 kg je Lademeter",
+    "Rund 2.500 kg je Lademeter"
+  ], a:0, e:"Verbreitet ist 1 ldm = 1.850 kg (manche Tarife rechnen 1.750 kg). Eine Europalette längs beansprucht 0,4 ldm." },
+  { id:"f024", t:"t_sammel", q:"Wie grenzt man Stückgut von Teil- und Komplettladung ab?", o:[
+    "Stückgut sind Sendungen, die mit anderen Sendungen zusammen befördert werden; bei Teil- und Komplettladungen wird das Fahrzeug ganz oder überwiegend für einen Auftrag genutzt",
+    "Stückgut sind nur Sendungen unter 100 kg",
+    "Stückgut ist immer palettiert, Ladungsverkehr immer unverpackt",
+    "Die Abgrenzung richtet sich allein nach der Entfernung"
+  ], a:0, e:"Entscheidend ist die Bündelungsfähigkeit: Stückgut läuft über Umschlagsanlagen, Ladungsverkehr direkt vom Versender zum Empfänger." },
+  { id:"f025", t:"t_sammel", q:"Was kennzeichnet ein Hub-and-Spoke-System gegenüber reinen Direktverkehren?", o:[
+    "Sendungen laufen über eine zentrale Umschlagsanlage, dadurch weniger Relationen und höhere Auslastung",
+    "Jede Relation wird direkt bedient, dadurch weniger Umschlag",
+    "Es werden ausschließlich Komplettladungen gefahren",
+    "Es ist nur in der Luftfracht möglich"
+  ], a:0, e:"Das Hub bündelt Verkehre: weniger Verbindungen, bessere Auslastung, dafür ein zusätzlicher Umschlag und eine längere Transportkette." },
+
+  /* ---------- Seefracht ---------- */
+  { id:"f026", t:"t_see", q:"Was bedeutet LCL in der Containerverschiffung?", o:[
+    "Less than Container Load – die Sendung füllt keinen Container und wird im Sammelcontainer verschifft",
+    "Full Container Load – ein Versender nutzt den ganzen Container",
+    "Loading Cargo List – die Ladeliste des Schiffes",
+    "Liner Charter Load – gechartertes Linienschiff"
+  ], a:0, e:"Bei LCL stuffen Konsolidierer mehrere Sendungen in einen Container (CFS), bei FCL wird der Container für einen Versender gepackt." },
+  { id:"f027", t:"t_see", q:"Welche Besonderheit unterscheidet das Konnossement (B/L) vom Frachtbrief?", o:[
+    "Es ist ein Traditionspapier: die Übergabe wirkt wie die Übergabe des Gutes, nur gegen Vorlage wird ausgeliefert",
+    "Es wird nur in drei Ausfertigungen erstellt",
+    "Es enthält keine Angaben zum Gut",
+    "Es ersetzt die Zollanmeldung"
+  ], a:0, e:"Das B/L ist Empfangsbestätigung, Beweis des Frachtvertrags und Wertpapier (Traditionspapier). Deshalb lässt es sich übertragen und im Dokumentenakkreditiv einsetzen." },
+  { id:"f028", t:"t_see", q:"Wie wird Seefracht bei der Berechnung nach W/M ermittelt?", o:[
+    "Je Frachteinheit gilt 1.000 kg oder 1 m³ – maßgeblich ist der höhere Wert",
+    "Immer nach dem tatsächlichen Gewicht in Tonnen",
+    "Immer nach dem Volumen in Kubikmetern",
+    "Nach Anzahl der Packstücke"
+  ], a:0, e:"W/M heißt Weight or Measurement: pro Einheit 1 t oder 1 m³, der höhere Wert zählt. Dazu kommen Zuschläge wie BAF, CAF und THC." },
+  { id:"f029", t:"t_see", q:"Wie hoch ist die Haftungsgrenze des Verfrachters nach § 504 HGB bzw. den Haag-Visby-Regeln?", o:[
+    "666,67 SZR je Stück oder 2 SZR je Kilogramm – maßgeblich ist der höhere Betrag",
+    "8,33 SZR je Kilogramm",
+    "22 SZR je Kilogramm",
+    "17 SZR je Kilogramm"
+  ], a:0, e:"Seefracht hat die niedrigste Haftung der Verkehrsträger; deshalb ist eine Warentransportversicherung hier besonders wichtig." },
+  { id:"f030", t:"t_see", q:"Was bezeichnet „Demurrage“?", o:[
+    "Liegegeld für die Überschreitung der freien Zeit des Containers im Terminal",
+    "Standgeld für den Container beim Empfänger außerhalb des Terminals",
+    "Einen Zuschlag für Treibstoffpreisschwankungen",
+    "Die Gebühr für den Containerumschlag am Kai"
+  ], a:0, e:"Demurrage fällt im Hafen/Terminal an, Detention für die zu lange Nutzung des Containers außerhalb des Terminals. THC ist die Umschlagsgebühr." },
+  { id:"f031", t:"t_see", q:"Welcher Unterschied besteht zwischen Linien- und Trampschifffahrt?", o:[
+    "Linienschifffahrt fährt feste Routen nach Fahrplan, Trampschifffahrt fährt nach Ladungsangebot ohne festen Fahrplan",
+    "Linienschifffahrt befördert nur Container, Trampschifffahrt nur Stückgut",
+    "Trampschifffahrt ist auf Binnengewässer begrenzt",
+    "Linienschifffahrt wird immer gechartert"
+  ], a:0, e:"Linienverkehr: Fahrplan, Tarif, meist Stückgut/Container. Trampverkehr: Charterverträge (Reise- oder Zeitcharter), typisch für Massengüter." },
+  { id:"f032", t:"t_see", q:"Welches Volumen hat ein 40-Fuß-High-Cube-Container etwa?", o:[
+    "Rund 76 m³",
+    "Rund 33 m³",
+    "Rund 50 m³",
+    "Rund 100 m³"
+  ], a:0, e:"Faustwerte: 20' ca. 33 m³, 40' ca. 67 m³, 40' HC ca. 76 m³. Die Nutzlast liegt beim 20' bei etwa 28 t und begrenzt schwere Ladung früher als das Volumen." },
+
+  /* ---------- Luftfracht ---------- */
+  { id:"f033", t:"t_luft", q:"Welche Eigenschaft hat der Luftfrachtbrief (AWB) nicht?", o:[
+    "Er ist ein begebbares Traditionspapier",
+    "Er ist Beweis des Beförderungsvertrags",
+    "Er ist Empfangsbestätigung der Luftfrachtsendung",
+    "Er dient als Grundlage für Abrechnung und Zollabwicklung"
+  ], a:0, e:"Der AWB ist nicht übertragbar und kein Wertpapier. Er wird in drei Originalen (Carrier, Consignee, Shipper) ausgestellt." },
+  { id:"f034", t:"t_luft", q:"Mit welchem Schlüssel wird das Volumengewicht in der Luftfracht berechnet?", o:[
+    "6.000 cm³ je Kilogramm, also 1 m³ = 166,67 kg",
+    "3.000 cm³ je Kilogramm, also 1 m³ = 333 kg",
+    "5.000 cm³ je Kilogramm, also 1 m³ = 200 kg",
+    "4.000 cm³ je Kilogramm, also 1 m³ = 250 kg"
+  ], a:0, e:"Länge × Breite × Höhe in cm geteilt durch 6.000 ergibt das Volumengewicht. Frachtpflichtig (chargeable weight) ist der höhere Wert gegenüber dem tatsächlichen Gewicht." },
+  { id:"f035", t:"t_luft", q:"Wie hoch ist die Haftungsgrenze für Güterschäden nach dem Montrealer Übereinkommen?", o:[
+    "22 SZR je Kilogramm",
+    "8,33 SZR je Kilogramm",
+    "17 SZR je Kilogramm",
+    "19 SZR je Kilogramm"
+  ], a:0, e:"Die Grenze wurde zuletzt 2019 auf 22 SZR/kg angehoben. Sie ist auch bei Vorsatz des Luftfrachtführers grundsätzlich nicht durchbrechbar – anders als bei der CMR." },
+  { id:"f036", t:"t_luft", q:"Eine Sendung wiegt 96 kg. Die Rate beträgt 4,20 EUR/kg, ab 100 kg gilt 3,85 EUR/kg. Wie wird korrekt abgerechnet?", o:[
+    "Mit 100 kg zu 3,85 EUR/kg, weil die höhere Gewichtsstufe günstiger ist",
+    "Mit 96 kg zu 4,20 EUR/kg, weil das tatsächliche Gewicht zählt",
+    "Mit 96 kg zu 3,85 EUR/kg",
+    "Mit 100 kg zu 4,20 EUR/kg"
+  ], a:0, e:"Prüfung der günstigeren höheren Gewichtsstufe: 96 × 4,20 = 403,20 EUR gegenüber 100 × 3,85 = 385,00 EUR. Abgerechnet wird der niedrigere Betrag." },
+  { id:"f037", t:"t_luft", q:"Was ist ein „bekannter Versender“ im Sinne der Luftsicherheit?", o:[
+    "Ein zugelassener Versender, dessen Sendungen als sicher gelten und ohne weitere Kontrolle als Luftfracht befördert werden können",
+    "Ein Stammkunde mit Rahmenvertrag",
+    "Ein Versender, der schon einmal Gefahrgut verschickt hat",
+    "Ein Versender, der beim Zoll als AEO registriert ist"
+  ], a:0, e:"Behördlich zugelassener bekannter Versender („known consignor“) liefert sichere Sendungen an den reglementierten Beauftragten. Unsichere Fracht muss durchleuchtet oder anders kontrolliert werden." },
+  { id:"f038", t:"t_luft", q:"Was ist eine ULD?", o:[
+    "Eine Unit Load Device – Container oder Palette, die der Flugzeugform angepasst ist",
+    "Eine Zollanmeldung für Luftfracht",
+    "Ein Luftfrachtzuschlag für Übergewicht",
+    "Ein Nachweis für Lithium-Batterien"
+  ], a:0, e:"ULDs sind standardisierte Luftfrachtbehälter und -paletten; sie sichern die Ladung und beschleunigen das Be- und Entladen." },
+  { id:"f039", t:"t_luft", q:"Was versteht man unter einem Luftfrachtersatzverkehr (RFS)?", o:[
+    "Die Beförderung mit dem Lkw unter Luftfrachtbedingungen und Luftfrachtbrief zwischen Flughäfen",
+    "Einen Ersatzflug nach Streichung des Originalflugs",
+    "Die Beförderung von Fluggepäck als Fracht",
+    "Den Transport von Luftfracht mit dem Zug statt mit dem Lkw"
+  ], a:0, e:"Road Feeder Service: Die Strecke wird per Lkw bedient, abgerechnet und gehaftet wird aber nach Luftfrachtrecht mit Flughafencode im AWB." },
+
+  /* ---------- Bahn, Binnenschiff, KV ---------- */
+  { id:"f040", t:"t_bahn", q:"Wie hoch ist die Haftungsgrenze im internationalen Schienenverkehr (CIM/COTIF)?", o:[
+    "17 SZR je Kilogramm",
+    "8,33 SZR je Kilogramm",
+    "2 SZR je Kilogramm",
+    "22 SZR je Kilogramm"
+  ], a:0, e:"Die CIM als Anhang B des COTIF begrenzt auf 17 SZR/kg – die höchste Grenze der Landverkehrsträger." },
+  { id:"f041", t:"t_bahn", q:"Was kennzeichnet den unbegleiteten Kombinierten Verkehr?", o:[
+    "Nur die Ladeeinheit wird umgeschlagen, Zugmaschine und Fahrer bleiben zurück",
+    "Der komplette Lkw inklusive Fahrer wird auf die Bahn verladen",
+    "Der Transport erfolgt ausschließlich mit dem Binnenschiff",
+    "Das Gut wird am Terminal umgepackt"
+  ], a:0, e:"Unbegleitet: kranbare Sattelauflieger, Wechselbrücken oder Container. Begleitet ist die Rollende Landstraße, bei der der Fahrer mitfährt." },
+  { id:"f042", t:"t_bahn", q:"Welcher Vorteil spricht für den Vor- und Nachlauf per Lkw im Kombinierten Verkehr?", o:[
+    "Die Flexibilität der Haus-zu-Haus-Bedienung bleibt erhalten, der Hauptlauf wird günstiger und emissionsärmer",
+    "Es entfällt jeder Umschlag",
+    "Es ist immer schneller als der durchgehende Lkw-Transport",
+    "Es ist nur mit Gefahrgut zulässig"
+  ], a:0, e:"KV verbindet die Flächenbedienung der Straße mit der Massenleistungsfähigkeit der Schiene; Nachteile sind Terminalbindung, Umschlagskosten und Zeitpuffer." },
+  { id:"f043", t:"t_bahn", q:"Welches Übereinkommen regelt die Haftung in der Binnenschifffahrt?", o:[
+    "Die CMNI mit 666,67 SZR je Packstück bzw. 2 SZR je Kilogramm",
+    "Die CMR mit 8,33 SZR je Kilogramm",
+    "Das Montrealer Übereinkommen",
+    "Die CIM mit 17 SZR je Kilogramm"
+  ], a:0, e:"Die CMNI gilt für die grenzüberschreitende Binnenschifffahrt; die Haftung entspricht im Niveau der Seefracht." },
+  { id:"f044", t:"t_bahn", q:"Wofür wird in der Binnenschifffahrt ein Kleinwasserzuschlag erhoben?", o:[
+    "Für die geringere Auslastbarkeit des Schiffes bei niedrigen Pegelständen",
+    "Für Schleusengebühren",
+    "Für die Reinigung der Laderäume",
+    "Für Wartezeiten im Hafen"
+  ], a:0, e:"Bei Niedrigwasser darf weniger abgeladen werden, die Fixkosten je Tonne steigen – der Zuschlag gleicht das aus." },
+
+  /* ---------- Lager und Kontraktlogistik ---------- */
+  { id:"f045", t:"t_lager", q:"Welche Formel beschreibt die Lagerumschlagshäufigkeit?", o:[
+    "Wareneinsatz bzw. Jahresabgang geteilt durch den durchschnittlichen Lagerbestand",
+    "Durchschnittlicher Lagerbestand geteilt durch den Jahresabgang",
+    "360 geteilt durch den durchschnittlichen Lagerbestand",
+    "Jahresabgang geteilt durch 360"
+  ], a:0, e:"UH = Jahresabgang / ⌀Lagerbestand. Daraus folgt die durchschnittliche Lagerdauer = 360 / UH." },
+  { id:"f046", t:"t_lager", q:"Wie wird der Lagerzinssatz berechnet?", o:[
+    "Jahreszinssatz × durchschnittliche Lagerdauer / 360",
+    "Jahreszinssatz × 360 / durchschnittliche Lagerdauer",
+    "Durchschnittlicher Lagerbestand × Jahreszinssatz",
+    "Lagerkosten / Lagerbestand × 100"
+  ], a:0, e:"Der Lagerzinssatz rechnet den Jahreszins auf die tatsächliche Lagerdauer herunter. Lagerzinsen = ⌀Lagerbestand (Wert) × Lagerzinssatz / 100." },
+  { id:"f047", t:"t_lager", q:"Was ist ein typisches Merkmal der Kontraktlogistik?", o:[
+    "Langfristige Verträge mit kundenindividuellen Zusatzleistungen und eigenen Investitionen des Dienstleisters",
+    "Einmalige Transportaufträge im Spotmarkt",
+    "Reine Vermittlung von Frachtraum",
+    "Ausschließlich Lagerung ohne weitere Leistungen"
+  ], a:0, e:"Kontraktlogistik bündelt Transport, Lagerung und Mehrwertdienste (Kommissionierung, Konfektionierung, Retouren) über mehrere Jahre – mit hoher Kundenbindung und entsprechendem Investitionsrisiko." },
+  { id:"f048", t:"t_lager", q:"Was beschreibt Cross-Docking?", o:[
+    "Waren werden im Umschlagspunkt direkt von der Eingangs- auf die Ausgangsseite umgeschlagen, ohne eingelagert zu werden",
+    "Waren werden nach dem FIFO-Prinzip eingelagert",
+    "Container werden zwischen zwei Schiffen umgeladen",
+    "Waren werden vor der Einlagerung qualitätsgeprüft"
+  ], a:0, e:"Cross-Docking spart Lagerkosten und Durchlaufzeit, verlangt aber genaue Mengenabstimmung und Termintreue der Lieferanten." },
+  { id:"f049", t:"t_lager", q:"Welches Kommissionierprinzip liegt vor, wenn ein automatisches Regalbediengerät Behälter an einen festen Packplatz bringt?", o:[
+    "Ware zum Mann",
+    "Mann zur Ware",
+    "Chaotische Lagerhaltung",
+    "Zweistufige Kommissionierung"
+  ], a:0, e:"„Ware zum Mann“ reduziert Wegezeiten und erlaubt hohe Pickleistungen, kostet aber mehr Technik und ist weniger flexibel als „Mann zur Ware“." },
+  { id:"f050", t:"t_lager", q:"Wozu dient eine ABC-Analyse im Lager?", o:[
+    "Artikel nach ihrem Wert- oder Umschlagsanteil zu klassifizieren, um Lagerplätze und Kontrollaufwand zu steuern",
+    "Die Lagerkosten je Quadratmeter zu berechnen",
+    "Gefahrgutklassen zu bestimmen",
+    "Die Mitarbeiterleistung zu bewerten"
+  ], a:0, e:"A-Artikel: wenige Positionen, großer Anteil – kurze Wege, enge Kontrolle. C-Artikel: viele Positionen, geringer Anteil – vereinfachte Disposition." },
+  { id:"f051", t:"t_lager", q:"Welche Lagerfunktion liegt vor, wenn Rohstoffe wegen erwarteter Preissteigerungen auf Vorrat gekauft werden?", o:[
+    "Spekulationsfunktion",
+    "Sicherungsfunktion",
+    "Umformungsfunktion",
+    "Veredelungsfunktion"
+  ], a:0, e:"Sicherung = Puffer gegen Lieferstörungen, Spekulation = Preisvorteil, Umformung = Sortiment/Mengen anpassen, Veredelung = Reifen oder Trocknen des Gutes." },
+
+  /* ---------- Zoll, Incoterms, Außenwirtschaft ---------- */
+  { id:"f052", t:"t_zoll", q:"Wie viele Klauseln umfassen die Incoterms 2020 und welche Klausel ist neu benannt?", o:[
+    "11 Klauseln; DPU hat DAT ersetzt",
+    "13 Klauseln; FOB hat FCA ersetzt",
+    "11 Klauseln; CIP hat CIF ersetzt",
+    "9 Klauseln; EXW wurde gestrichen"
+  ], a:0, e:"Die Incoterms 2020 haben 11 Klauseln in vier Gruppen (E, F, C, D). DAT wurde zu DPU (Delivered at Place Unloaded) umbenannt." },
+  { id:"f053", t:"t_zoll", q:"Welche Incoterms-Klausel verpflichtet den Verkäufer zu einer Versicherung mit der weitgehenden Deckung nach ICC A?", o:[
+    "CIP",
+    "CIF",
+    "CFR",
+    "FOB"
+  ], a:0, e:"CIP verlangt seit 2020 Deckung nach Institute Cargo Clauses A, CIF nur die Mindestdeckung nach ICC C. Versicherungssumme jeweils 110 % des Warenwerts." },
+  { id:"f054", t:"t_zoll", q:"Wann geht bei FOB die Gefahr auf den Käufer über?", o:[
+    "Wenn die Ware im Verschiffungshafen an Bord des Schiffes gebracht ist",
+    "Wenn die Ware das Werk des Verkäufers verlässt",
+    "Wenn die Ware im Bestimmungshafen entladen ist",
+    "Wenn die Ware dem ersten Frachtführer übergeben wird"
+  ], a:0, e:"FOB, FAS, CFR und CIF sind reine See- und Binnenschiffsklauseln. Für Container empfiehlt sich stattdessen FCA, weil die Übergabe am Terminal erfolgt." },
+  { id:"f055", t:"t_zoll", q:"Woraus setzt sich der Zollwert bei der Einfuhr grundsätzlich zusammen?", o:[
+    "Transaktionswert der Ware zuzüglich Kosten für Transport und Versicherung bis zur EU-Außengrenze",
+    "Nur dem Rechnungsbetrag der Ware",
+    "Rechnungsbetrag zuzüglich aller Transportkosten bis zum Empfänger",
+    "Verkaufspreis im Inland abzüglich Handelsspanne"
+  ], a:0, e:"Zollwert = Transaktionswert plus Hinzurechnungen bis zum Eingang in das Zollgebiet der Union. Kosten nach der Grenze gehören nicht in den Zollwert, wohl aber in die Einfuhrumsatzsteuer-Bemessungsgrundlage." },
+  { id:"f056", t:"t_zoll", q:"Welches Zollverfahren wird genutzt, um Nicht-Unionswaren unter zollamtlicher Überwachung von der Grenze zum Bestimmungsort zu befördern?", o:[
+    "Unionsversandverfahren T1",
+    "Überlassung zum freien Verkehr",
+    "Aktive Veredelung",
+    "Endverwendung"
+  ], a:0, e:"T1 für Nicht-Unionswaren, T2 für Unionswaren über Drittländer. Erst die Überlassung zum freien Verkehr erhebt Zoll und Einfuhrumsatzsteuer." },
+  { id:"f057", t:"t_zoll", q:"Was ist eine EORI-Nummer?", o:[
+    "Die unionsweite Registriernummer für Wirtschaftsbeteiligte bei Zollvorgängen",
+    "Die Umsatzsteuer-Identifikationsnummer",
+    "Eine Kennziffer für Gefahrgut",
+    "Die Zolltarifnummer einer Ware"
+  ], a:0, e:"Die EORI-Nummer identifiziert den Beteiligten in allen Zollanmeldungen; in Deutschland erfolgen diese elektronisch über ATLAS." },
+  { id:"f058", t:"t_zoll", q:"Welchen Zweck hat ein Präferenznachweis wie die Erklärung zum Ursprung oder die EUR.1?", o:[
+    "Er belegt den Warenursprung, damit im Einfuhrland verringerte oder entfallende Zollsätze angewendet werden",
+    "Er ersetzt die Ausfuhranmeldung",
+    "Er bestätigt die Zahlung der Einfuhrumsatzsteuer",
+    "Er weist die Verkehrsfähigkeit des Gutes nach"
+  ], a:0, e:"Präferenznachweise wirken nur bei Abkommen zwischen EU und Partnerland. Registrierte Ausführer (REX) können bis zu jedem Wert selbst erklären, Lieferantenerklärungen sichern den Ursprung in der Vorkette." },
+  { id:"f059", t:"t_zoll", q:"Welcher Vorteil ergibt sich aus dem Status eines zugelassenen Wirtschaftsbeteiligten (AEO)?", o:[
+    "Vereinfachungen und weniger Kontrollen in der Zollabwicklung, weil Zuverlässigkeit und Sicherheitsstandards geprüft sind",
+    "Vollständige Zollfreiheit für alle Einfuhren",
+    "Befreiung von der Einfuhrumsatzsteuer",
+    "Verzicht auf Zollanmeldungen"
+  ], a:0, e:"AEO-C steht für zollrechtliche Vereinfachungen, AEO-S für Sicherheit. Der Status wirkt auch in der Lieferkette als Qualitätsnachweis." },
+
+  /* ---------- Versicherung und Schadenabwicklung ---------- */
+  { id:"f060", t:"t_vers", q:"Was deckt eine Verkehrshaftungsversicherung ab?", o:[
+    "Die gesetzliche oder vertragliche Haftung des Spediteurs bzw. Frachtführers gegenüber dem Auftraggeber",
+    "Den vollen Warenwert der Sendung unabhängig von Verschulden und Haftungsgrenzen",
+    "Betriebsunterbrechungen beim Versender",
+    "Die Fahrzeugschäden am eigenen Lkw"
+  ], a:0, e:"Sie schützt den Dienstleister vor seinem Haftungsrisiko, nicht die Ware. Für den vollen Warenwert braucht der Versender eine Transport- bzw. Warenversicherung." },
+  { id:"f061", t:"t_vers", q:"Welche Institute Cargo Clause bietet die weitreichendste Deckung?", o:[
+    "ICC A – Allgefahrendeckung mit benannten Ausschlüssen",
+    "ICC B – erweiterte Gefahrendeckung",
+    "ICC C – Mindestdeckung benannter Gefahren",
+    "Alle drei sind gleichwertig"
+  ], a:0, e:"ICC A deckt alle Gefahren außer den Ausschlüssen, ICC B und C nur aufgezählte Ereignisse. Krieg und Streik werden gesondert eingeschlossen." },
+  { id:"f062", t:"t_vers", q:"Warum sollte ein Spediteur seinem Kunden eine Warentransportversicherung empfehlen?", o:[
+    "Weil die Haftung des Frachtführers summenmäßig begrenzt ist und bei Haftungsausschlüssen ganz entfallen kann",
+    "Weil die Warenversicherung die Haftung des Spediteurs erhöht",
+    "Weil der Frachtführer dann nicht mehr haftet",
+    "Weil die Versicherung die Frachtkosten senkt"
+  ], a:0, e:"8,33 SZR/kg reichen bei hochwertiger, leichter Ware nicht aus. Zudem entfällt die Haftung bei unabwendbaren Ereignissen und besonderen Haftungsausschlüssen." },
+  { id:"f063", t:"t_vers", q:"Wie hoch ist bei CIF und CIP die vereinbarte Mindestversicherungssumme?", o:[
+    "110 % des Warenwerts in der Währung des Kaufvertrags",
+    "100 % des Warenwerts",
+    "120 % des Warenwerts",
+    "Der Warenwert zuzüglich der Fracht"
+  ], a:0, e:"Die 10 % Zuschlag decken imaginären Gewinn und Nebenkosten. Die Deckung muss vom Lieferort bis zum benannten Bestimmungsort reichen." },
+  { id:"f064", t:"t_vers", q:"Welche Pflicht trifft den Empfänger bei einem äußerlich erkennbaren Transportschaden?", o:[
+    "Schaden vor oder bei der Ablieferung anzeigen und dokumentieren, Beweise sichern, Schadenminderung betreiben",
+    "Die Annahme in jedem Fall verweigern",
+    "Den Schaden erst nach Prüfung durch den Versicherer melden",
+    "Die Ware vernichten und den Rechnungswert fordern"
+  ], a:0, e:"Vorbehalt auf dem Ablieferbeleg, Fotos, Mengen- und Gewichtsfeststellung. Ohne Anzeige greift die Vermutung ordnungsgemäßer Ablieferung." },
+
+  /* ---------- Gefahrgut und Ladungssicherung ---------- */
+  { id:"f065", t:"t_gefahr", q:"Welches Regelwerk gilt für den Gefahrguttransport auf der Straße?", o:[
+    "ADR",
+    "RID",
+    "IMDG-Code",
+    "IATA-DGR"
+  ], a:0, e:"ADR Straße, RID Schiene, ADN Binnenschiff, IMDG-Code Seeschiff, IATA-DGR/ICAO-TI Luftfracht." },
+  { id:"f066", t:"t_gefahr", q:"Welche Angabe gehört zwingend in das Beförderungspapier für Gefahrgut?", o:[
+    "UN-Nummer, offizielle Benennung, Gefahrzettelmuster, Verpackungsgruppe und Mengenangabe",
+    "Nur die Anzahl der Packstücke",
+    "Der Warenwert der Sendung",
+    "Die Zolltarifnummer"
+  ], a:0, e:"Zusätzlich gehören die schriftlichen Weisungen ins Fahrzeug; der Fahrer braucht eine ADR-Schulungsbescheinigung." },
+  { id:"f067", t:"t_gefahr", q:"Wer ist nach § 412 HGB für die beförderungssichere Verladung verantwortlich?", o:[
+    "Der Absender; der Frachtführer hat für die betriebssichere Verladung zu sorgen",
+    "Der Frachtführer für beides",
+    "Der Empfänger",
+    "Der Spediteur in jedem Fall"
+  ], a:0, e:"Beförderungssicher = Ladung übersteht die Transportbeanspruchung (Absender). Betriebssicher = Fahrzeug bleibt verkehrssicher, Gewichte und Achslasten stimmen (Frachtführer)." },
+  { id:"f068", t:"t_gefahr", q:"Welches technische Regelwerk beschreibt die Ladungssicherung im Straßenverkehr?", o:[
+    "VDI 2700 ff.",
+    "DIN EN 12195 ausschließlich für Seecontainer",
+    "VDI 3300",
+    "ISO 9001"
+  ], a:0, e:"VDI 2700 ff. gilt als anerkannte Regel der Technik, ergänzt durch DIN EN 12195 für Zurrmittel. Rechtliche Grundlagen: § 22 StVO, § 23 StVO, § 412 HGB." },
+  { id:"f069", t:"t_gefahr", q:"Welche Kennzeichnung trägt ein Tankfahrzeug mit Gefahrgut außen?", o:[
+    "Orangefarbene Warntafel mit UN-Nummer und Gefahrnummer",
+    "Nur ein weißes Dreieck",
+    "Ein grünes Schild mit Klassennummer",
+    "Nur den Firmennamen des Beförderers"
+  ], a:0, e:"Die orange Warntafel nennt oben die Gefahrnummer (Kemler-Zahl), unten die UN-Nummer. Großzettel (Placards) zeigen zusätzlich die Gefahrklasse." },
+  { id:"f070", t:"t_gefahr", q:"Wann muss ein Unternehmen einen Gefahrgutbeauftragten bestellen?", o:[
+    "Wenn es an der Beförderung gefährlicher Güter beteiligt ist und keine Freistellung greift",
+    "Immer, sobald es Lkw über 7,5 t einsetzt",
+    "Nur bei Beförderungen in Drittländer",
+    "Nur bei Gefahrgut der Klasse 1"
+  ], a:0, e:"Der Gefahrgutbeauftragte überwacht die Einhaltung der Vorschriften, schult, berät und erstellt den Jahresbericht; die Verantwortung der Beteiligten bleibt bestehen." },
+
+  /* ---------- Buchführung und Jahresabschluss ---------- */
+  { id:"f071", t:"t_buch", q:"Wie lautet der Buchungssatz für eine Dieselrechnung von 1.190 EUR brutto (19 % USt) auf Rechnung?", o:[
+    "Kraftstoffe 1.000 EUR und Vorsteuer 190 EUR an Verbindlichkeiten 1.190 EUR",
+    "Verbindlichkeiten 1.190 EUR an Kraftstoffe 1.000 EUR und Vorsteuer 190 EUR",
+    "Kraftstoffe 1.190 EUR an Verbindlichkeiten 1.190 EUR",
+    "Kraftstoffe 1.000 EUR und Umsatzsteuer 190 EUR an Bank 1.190 EUR"
+  ], a:0, e:"Aufwand netto plus Vorsteuer im Soll, Verbindlichkeit brutto im Haben. Die Vorsteuer wird mit der Umsatzsteuer verrechnet." },
+  { id:"f072", t:"t_buch", q:"Welche Inventurform erlaubt die Bestandsaufnahme zu einem beliebigen Zeitpunkt des Geschäftsjahres mit Fortschreibung auf den Stichtag?", o:[
+    "Zeitlich verlegte Inventur",
+    "Stichtagsinventur",
+    "Permanente Inventur",
+    "Stichprobeninventur"
+  ], a:0, e:"Verlegte Inventur: Aufnahme innerhalb von drei Monaten vor oder zwei Monaten nach dem Stichtag, Wertfortschreibung auf den Stichtag. Permanente Inventur arbeitet laufend über die Lagerbuchführung." },
+  { id:"f073", t:"t_buch", q:"Ein Lkw kostet 132.000 EUR und wird linear über acht Jahre abgeschrieben. Wie hoch ist der Buchwert nach drei Jahren?", o:[
+    "82.500 EUR",
+    "99.000 EUR",
+    "66.000 EUR",
+    "88.000 EUR"
+  ], a:0, e:"Jahresabschreibung 132.000 / 8 = 16.500 EUR. Nach drei Jahren 132.000 − 49.500 = 82.500 EUR." },
+  { id:"f074", t:"t_buch", q:"Wie wirkt der Kauf eines Gabelstaplers auf Ziel in der Bilanz?", o:[
+    "Aktiv-Passiv-Mehrung: Anlagevermögen und Verbindlichkeiten steigen",
+    "Aktivtausch: ein Aktivposten wird gegen einen anderen getauscht",
+    "Passivtausch: eine Verbindlichkeit wird gegen eine andere getauscht",
+    "Aktiv-Passiv-Minderung"
+  ], a:0, e:"Die Bilanzsumme wächst auf beiden Seiten. Bei Barzahlung wäre es ein Aktivtausch (Stapler steigt, Bank sinkt)." },
+  { id:"f075", t:"t_buch", q:"Wann ist eine Rückstellung zu bilden?", o:[
+    "Wenn eine Verpflichtung dem Grund nach besteht, Höhe oder Zeitpunkt aber ungewiss sind",
+    "Wenn Betrag und Fälligkeit genau feststehen",
+    "Wenn ein Gewinn erwartet wird",
+    "Nur wenn das Finanzamt es verlangt"
+  ], a:0, e:"Typisch: Prozessrisiken, Gewährleistung, ausstehende Rechnungen. Stehen Betrag und Termin fest, ist es eine Verbindlichkeit." },
+  { id:"f076", t:"t_buch", q:"Wo erscheint eine Forderung, die als zweifelhaft eingestuft wird?", o:[
+    "Sie wird auf „Zweifelhafte Forderungen“ umgebucht und mit dem wahrscheinlichen Ausfall bewertet",
+    "Sie wird sofort vollständig ausgebucht",
+    "Sie bleibt unverändert als Forderung stehen",
+    "Sie wird als Verbindlichkeit erfasst"
+  ], a:0, e:"Zweifelhafte Forderungen werden einzelwertberichtigt; bei Uneinbringlichkeit folgt die Ausbuchung mit Korrektur der Umsatzsteuer." },
+
+  /* ---------- Kosten- und Leistungsrechnung ---------- */
+  { id:"f077", t:"t_kost", q:"Welche Kostenart ist bei einem Lkw fix?", o:[
+    "Die Kfz-Versicherung",
+    "Der Dieselverbrauch",
+    "Die Maut",
+    "Der Reifenverschleiß"
+  ], a:0, e:"Fix: Abschreibung (zeitabhängig), Versicherung, Steuer, Fahrerlohn im Grundbetrag. Variabel: Diesel, Maut, Reifen, leistungsabhängige Reparaturen." },
+  { id:"f078", t:"t_kost", q:"Wozu dient der Betriebsabrechnungsbogen (BAB)?", o:[
+    "Gemeinkosten auf Kostenstellen zu verteilen und Zuschlagssätze zu ermitteln",
+    "Einzelkosten direkt dem Kostenträger zuzurechnen",
+    "Die Bilanz aufzustellen",
+    "Die Umsatzsteuer zu berechnen"
+  ], a:0, e:"Der BAB verteilt Gemeinkosten über Verteilungsschlüssel auf Kostenstellen; aus Gemeinkosten und Bezugsgröße entstehen die Zuschlagssätze für die Kalkulation." },
+  { id:"f079", t:"t_kost", q:"Was sind kalkulatorische Kosten?", o:[
+    "Kosten ohne oder mit abweichendem Aufwand, zum Beispiel kalkulatorischer Unternehmerlohn und kalkulatorische Zinsen",
+    "Alle Kosten, die in der Finanzbuchhaltung erfasst sind",
+    "Nur die Abschreibungen nach Steuerrecht",
+    "Erlöse aus Nebengeschäften"
+  ], a:0, e:"Zusatzkosten (kein Aufwand, z. B. Unternehmerlohn) und Anderskosten (abweichende Höhe, z. B. kalkulatorische Abschreibung vom Wiederbeschaffungswert)." },
+  { id:"f080", t:"t_kost", q:"Wie wird der Deckungsbeitrag je Sendung berechnet?", o:[
+    "Erlös minus variable Kosten",
+    "Erlös minus Gesamtkosten",
+    "Erlös minus Fixkosten",
+    "Variable Kosten plus Fixkosten"
+  ], a:0, e:"Der Deckungsbeitrag deckt zuerst die Fixkosten; was darüber hinausgeht, ist Gewinn. Deshalb kann ein Auftrag unter Vollkosten kurzfristig sinnvoll sein." },
+  { id:"f081", t:"t_kost", q:"Eine Relation bringt 420 EUR Erlös bei 265 EUR variablen Kosten. Fixkosten: 46.500 EUR. Wie viele Sendungen sind für den Break-even nötig?", o:[
+    "300 Sendungen",
+    "111 Sendungen",
+    "175 Sendungen",
+    "265 Sendungen"
+  ], a:0, e:"Deckungsbeitrag 155 EUR je Sendung; 46.500 / 155 = 300 Sendungen. Ab der 301. Sendung entsteht Gewinn." },
+  { id:"f082", t:"t_kost", q:"Warum ist ein hoher Leerfahrtenanteil betriebswirtschaftlich kritisch?", o:[
+    "Die Kosten entstehen weiter, es steht ihnen aber kein Erlös gegenüber",
+    "Der Verschleiß ist bei Leerfahrten höher als bei Lastfahrten",
+    "Leerfahrten sind mautpflichtig, Lastfahrten nicht",
+    "Leerfahrten erhöhen die Fixkosten je Fahrzeug"
+  ], a:0, e:"Deshalb arbeiten Disponenten mit Rundläufen, Frachtenbörsen und Kooperationen; auch die CO₂-Bilanz je Tonnenkilometer verschlechtert sich." },
+
+  /* ---------- Kalkulation, Kennzahlen, Controlling ---------- */
+  { id:"f083", t:"t_kalk", q:"Wie wird die Eigenkapitalquote berechnet?", o:[
+    "Eigenkapital × 100 / Gesamtkapital",
+    "Eigenkapital × 100 / Fremdkapital",
+    "Gewinn × 100 / Eigenkapital",
+    "Eigenkapital × 100 / Umsatz"
+  ], a:0, e:"Die Eigenkapitalquote zeigt die Finanzierungsstruktur und damit die Krisenfestigkeit. Gewinn/Eigenkapital ist die Eigenkapitalrentabilität." },
+  { id:"f084", t:"t_kalk", q:"Ein Unternehmen erzielt 3.700.000 EUR Umsatz und 148.000 EUR Gewinn. Wie hoch ist die Umsatzrentabilität?", o:[
+    "4 %",
+    "2,5 %",
+    "25 %",
+    "0,4 %"
+  ], a:0, e:"148.000 × 100 / 3.700.000 = 4 %. In der Speditionsbranche sind einstellige Umsatzrenditen typisch." },
+  { id:"f085", t:"t_kalk", q:"Was sagt die Liquidität 1. Grades aus?", o:[
+    "Welcher Anteil der kurzfristigen Verbindlichkeiten durch flüssige Mittel gedeckt ist",
+    "Wie hoch das Umlaufvermögen insgesamt ist",
+    "Wie schnell Forderungen eingehen",
+    "Wie hoch der Cashflow im Jahr ist"
+  ], a:0, e:"Liquidität 1. Grades = flüssige Mittel × 100 / kurzfristige Verbindlichkeiten. Grad 2 nimmt die Forderungen hinzu, Grad 3 zusätzlich die Vorräte." },
+  { id:"f086", t:"t_kalk", q:"Welche Aussage zum Soll-Ist-Vergleich im Controlling ist richtig?", o:[
+    "Abweichungen werden nach Ursachen analysiert, um Maßnahmen abzuleiten",
+    "Er dient allein der Dokumentation für das Finanzamt",
+    "Er ersetzt die Kalkulation",
+    "Abweichungen sind nur bei Überschreitung des Plans relevant"
+  ], a:0, e:"Controlling heißt steuern, nicht kontrollieren: Planwerte, Istwerte, Abweichungsanalyse, Maßnahme, Nachverfolgung." },
+  { id:"f087", t:"t_kalk", q:"Welcher Angebotsvergleich berücksichtigt Rabatt, Skonto und Bezugskosten?", o:[
+    "Die Bezugskalkulation bis zum Bezugspreis",
+    "Die Zuschlagskalkulation bis zum Verkaufspreis",
+    "Die Deckungsbeitragsrechnung",
+    "Der Betriebsabrechnungsbogen"
+  ], a:0, e:"Listeneinkaufspreis − Rabatt = Zieleinkaufspreis − Skonto = Bareinkaufspreis + Bezugskosten = Bezugspreis. Erst der Bezugspreis ist vergleichbar." },
+
+  /* ---------- Zahlungsverkehr und Steuern ---------- */
+  { id:"f088", t:"t_zahl", q:"Welche Voraussetzung gilt für eine SEPA-Basis-Lastschrift?", o:[
+    "Ein vom Zahlungspflichtigen erteiltes schriftliches Mandat",
+    "Eine Vollmacht der Bank des Zahlungsempfängers",
+    "Ein Handelsregisterauszug des Zahlungspflichtigen",
+    "Eine Bürgschaft über den Zahlbetrag"
+  ], a:0, e:"Das Mandat berechtigt zum Einzug; bei der Basis-Lastschrift kann der Zahler acht Wochen widersprechen, bei der Firmen-Lastschrift (B2B) nicht." },
+  { id:"f089", t:"t_zahl", q:"Wie hoch sind die gesetzlichen Verzugszinsen im Geschäftsverkehr zwischen Unternehmen?", o:[
+    "Neun Prozentpunkte über dem Basiszinssatz, zusätzlich 40 EUR Pauschale",
+    "Fünf Prozentpunkte über dem Basiszinssatz",
+    "Vier Prozent fest",
+    "Acht Prozent fest ohne Pauschale"
+  ], a:0, e:"§ 288 BGB: fünf Prozentpunkte über Basiszins gegenüber Verbrauchern, neun Prozentpunkte zwischen Unternehmen, dort zusätzlich 40 EUR Verzugspauschale." },
+  { id:"f090", t:"t_zahl", q:"Welche Reihenfolge gilt im gerichtlichen Mahnverfahren?", o:[
+    "Mahnbescheid, dann Vollstreckungsbescheid, dann Zwangsvollstreckung",
+    "Vollstreckungsbescheid, dann Mahnbescheid, dann Klage",
+    "Klage, dann Mahnbescheid, dann Vollstreckung",
+    "Zwangsvollstreckung, dann Mahnbescheid"
+  ], a:0, e:"Nach dem Mahnbescheid hat der Schuldner zwei Wochen für den Widerspruch; nach dem Vollstreckungsbescheid bleiben zwei Wochen für den Einspruch." },
+  { id:"f091", t:"t_zahl", q:"Wie wird eine Transportleistung an einen Unternehmer in einem anderen EU-Mitgliedstaat umsatzsteuerlich behandelt?", o:[
+    "Der Leistungsort liegt beim Leistungsempfänger, dieser schuldet die Steuer im Reverse-Charge-Verfahren",
+    "Es gilt immer der deutsche Steuersatz von 19 %",
+    "Die Leistung ist grundsätzlich nicht steuerbar und muss nicht gemeldet werden",
+    "Es gilt der Steuersatz des Landes, in dem der Lkw zugelassen ist"
+  ], a:0, e:"§ 3a Abs. 2 UStG (Empfängerortprinzip): Rechnung ohne Steuer mit Hinweis auf Steuerschuldumkehr und USt-IdNr. beider Beteiligten, Meldung in der Zusammenfassenden Meldung." },
+  { id:"f092", t:"t_zahl", q:"Was bewirkt Factoring für eine Spedition?", o:[
+    "Forderungen werden verkauft; das bringt sofortige Liquidität und je nach Vertrag Schutz vor Ausfall",
+    "Verbindlichkeiten werden gestundet",
+    "Die Umsatzsteuer wird später fällig",
+    "Fahrzeuge werden geleast statt gekauft"
+  ], a:0, e:"Finanzierungs-, Dienstleistungs- und Delkrederefunktion. Die Kosten sind gegen Zinsvorteil und entfallendes Mahnwesen abzuwägen." },
+  { id:"f093", t:"t_zahl", q:"Eine Rechnung lautet auf 2 % Skonto bei Zahlung in 10 Tagen, Zahlungsziel 30 Tage. Wie hoch ist der Jahreszins des Lieferantenkredits näherungsweise?", o:[
+    "36 %",
+    "24 %",
+    "2 %",
+    "12 %"
+  ], a:0, e:"2 % × 360 / (30 − 10) = 36 %. Kaum ein Kontokorrentkredit ist teurer, also Skonto ziehen." },
+
+  /* ---------- Ausbildung, Arbeitsrecht, Mitbestimmung ---------- */
+  { id:"f094", t:"t_ausb", q:"Wie lang darf die Probezeit in einem Berufsausbildungsverhältnis sein?", o:[
+    "Mindestens einen und höchstens vier Monate",
+    "Mindestens drei und höchstens sechs Monate",
+    "Genau sechs Monate",
+    "Frei vereinbar bis zu einem Jahr"
+  ], a:0, e:"§ 20 BBiG. In der Probezeit kann jederzeit ohne Frist und ohne Grund gekündigt werden; danach nur noch fristlos aus wichtigem Grund oder vom Azubi mit vier Wochen Frist bei Berufsaufgabe." },
+  { id:"f094b", t:"t_ausb", q:"Welche Pflicht trifft den Ausbildenden nach dem BBiG?", o:[
+    "Kostenlose Bereitstellung der Ausbildungsmittel und Freistellung für die Berufsschule",
+    "Zahlung des tariflichen Facharbeiterlohns",
+    "Übernahme nach der Ausbildung",
+    "Bereitstellung einer Wohnung"
+  ], a:0, e:"Weitere Pflichten: planmäßige Ausbildung, Anhalten zum Berichtsheft, Zeugnis, Freistellung für Prüfungen. Der Azubi schuldet Lernpflicht, Weisungsbefolgung, Sorgfalt und Schweigepflicht." },
+  { id:"f095", t:"t_ausb", q:"Ab wie vielen wahlberechtigten Arbeitnehmern kann ein Betriebsrat gewählt werden?", o:[
+    "Ab fünf wahlberechtigten Arbeitnehmern, von denen drei wählbar sind",
+    "Ab zehn Arbeitnehmern",
+    "Ab 20 Arbeitnehmern",
+    "Ab drei Arbeitnehmern"
+  ], a:0, e:"§ 1 BetrVG. Die regelmäßigen Betriebsratswahlen finden alle vier Jahre statt; eine JAV kann ab fünf Beschäftigten unter 18 bzw. Auszubildenden unter 25 gewählt werden." },
+  { id:"f096", t:"t_ausb", q:"In welchem Fall hat der Betriebsrat ein echtes Mitbestimmungsrecht?", o:[
+    "Bei Beginn und Ende der täglichen Arbeitszeit und Pausenregelungen",
+    "Bei der Festlegung der Unternehmensstrategie",
+    "Bei der Wahl des Steuerberaters",
+    "Bei der Preisgestaltung gegenüber Kunden"
+  ], a:0, e:"§ 87 BetrVG zählt die erzwingbaren Mitbestimmungstatbestände auf (Arbeitszeit, Urlaubsgrundsätze, technische Überwachung, betriebliche Lohngestaltung)." },
+  { id:"f097", t:"t_ausb", q:"Was besagt das Günstigkeitsprinzip?", o:[
+    "Eine einzelvertragliche Regelung gilt, wenn sie für den Arbeitnehmer günstiger ist als der Tarifvertrag",
+    "Der Tarifvertrag verdrängt immer den Arbeitsvertrag",
+    "Der Arbeitgeber darf die günstigste Regelung für sich wählen",
+    "Gesetze gelten stets vor Tarifverträgen"
+  ], a:0, e:"Rangfolge: EU-Recht, Gesetz, Tarifvertrag, Betriebsvereinbarung, Arbeitsvertrag – mit Günstigkeitsprinzip zugunsten des Arbeitnehmers." },
+  { id:"f098", t:"t_ausb", q:"Wie lang darf die werktägliche Arbeitszeit nach dem Arbeitszeitgesetz verlängert werden?", o:[
+    "Auf bis zu zehn Stunden, wenn im Schnitt von sechs Monaten acht Stunden nicht überschritten werden",
+    "Auf bis zu zwölf Stunden ohne Ausgleich",
+    "Auf bis zu neun Stunden ohne Ausgleich",
+    "Eine Verlängerung ist nicht zulässig"
+  ], a:0, e:"Ruhepausen: 30 Minuten bei mehr als sechs Stunden, 45 Minuten bei mehr als neun Stunden. Ruhezeit mindestens elf Stunden." },
+  { id:"f099", t:"t_ausb", q:"Ab welcher Betriebsgröße gilt das Kündigungsschutzgesetz grundsätzlich?", o:[
+    "In Betrieben mit regelmäßig mehr als zehn Arbeitnehmern",
+    "In allen Betrieben unabhängig von der Größe",
+    "Ab mehr als fünf Arbeitnehmern",
+    "Ab mehr als 20 Arbeitnehmern"
+  ], a:0, e:"Zusätzlich muss das Arbeitsverhältnis länger als sechs Monate bestehen. Die Kündigungsfristen des § 622 BGB verlängern sich mit der Beschäftigungsdauer." },
+
+  /* ---------- Sozialversicherung und Entgelt ---------- */
+  { id:"f100", t:"t_sozial", q:"Welcher Zweig der Sozialversicherung wird allein vom Arbeitgeber getragen?", o:[
+    "Die gesetzliche Unfallversicherung",
+    "Die Krankenversicherung",
+    "Die Rentenversicherung",
+    "Die Arbeitslosenversicherung"
+  ], a:0, e:"Träger sind die Berufsgenossenschaften, für Verkehrsbetriebe die BG Verkehr. Die übrigen vier Zweige werden grundsätzlich hälftig getragen." },
+  { id:"f101", t:"t_sozial", q:"Wie hoch ist der Beitragssatz zur gesetzlichen Rentenversicherung (Stand 2026)?", o:[
+    "18,6 %",
+    "14,6 %",
+    "9,3 %",
+    "20,6 %"
+  ], a:0, e:"18,6 % insgesamt, davon je 9,3 % Arbeitgeber und Arbeitnehmer. Arbeitslosenversicherung 2,6 %, Pflegeversicherung 3,6 % (kinderlos ab 23 Jahren 4,2 %), Krankenversicherung 14,6 % plus kassenindividueller Zusatzbeitrag." },
+  { id:"f102", t:"t_sozial", q:"Was bewirkt die Beitragsbemessungsgrenze?", o:[
+    "Entgeltteile oberhalb der Grenze bleiben beitragsfrei",
+    "Unterhalb der Grenze entfallen die Beiträge",
+    "Sie begrenzt die Höhe der späteren Rente auf einen Festbetrag",
+    "Sie legt den Mindestbeitrag fest"
+  ], a:0, e:"Die Grenzen werden jährlich angepasst und unterscheiden sich zwischen Renten-/Arbeitslosenversicherung und Kranken-/Pflegeversicherung. Für die Prüfung die aktuellen Werte nachsehen." },
+  { id:"f103", t:"t_sozial", q:"Wie lange zahlt der Arbeitgeber bei Arbeitsunfähigkeit das Entgelt fort?", o:[
+    "Bis zu sechs Wochen, danach zahlt die Krankenkasse Krankengeld",
+    "Bis zu zwölf Wochen",
+    "Bis zu vier Wochen",
+    "Nur für die Dauer der Krankmeldung ohne Höchstgrenze"
+  ], a:0, e:"Voraussetzung: mindestens vier Wochen Beschäftigung und keine Selbstverschuldung. Das Krankengeld beträgt 70 % des Bruttoentgelts, höchstens 90 % des Nettoentgelts." },
+  { id:"f104", t:"t_sozial", q:"Wie hoch ist der gesetzliche Mindestlohn seit dem 1. Januar 2026?", o:[
+    "13,90 EUR je Stunde",
+    "12,82 EUR je Stunde",
+    "14,60 EUR je Stunde",
+    "12,41 EUR je Stunde"
+  ], a:0, e:"Nach 12,82 EUR im Jahr 2025 gilt ab 2026 ein Mindestlohn von 13,90 EUR; für 2027 sind 14,60 EUR beschlossen." },
+  { id:"f105", t:"t_sozial", q:"Welche Reihenfolge führt vom Brutto zum Nettoentgelt?", o:[
+    "Bruttoentgelt minus Lohnsteuer und Solidaritätszuschlag bzw. Kirchensteuer, dann minus Sozialversicherungsbeiträge",
+    "Bruttoentgelt minus Sozialversicherung, dann plus Lohnsteuer",
+    "Bruttoentgelt minus Arbeitgeberanteile zur Sozialversicherung",
+    "Bruttoentgelt minus Umsatzsteuer"
+  ], a:0, e:"Abgezogen werden Steuern und die Arbeitnehmeranteile. Die Arbeitgeberanteile belasten den Betrieb zusätzlich, nicht das Nettoentgelt." },
+
+  /* ---------- Wirtschaftsordnung und Rechtsformen ---------- */
+  { id:"f106", t:"t_wirt", q:"Welches Mindeststammkapital verlangt die GmbH?", o:[
+    "25.000 EUR, davon mindestens 12.500 EUR bei Anmeldung eingezahlt",
+    "50.000 EUR",
+    "1 EUR",
+    "10.000 EUR"
+  ], a:0, e:"Die AG braucht 50.000 EUR Grundkapital, die UG (haftungsbeschränkt) kann mit 1 EUR starten, muss aber Rücklagen bilden." },
+  { id:"f107", t:"t_wirt", q:"Wer haftet in einer Kommanditgesellschaft unbeschränkt?", o:[
+    "Der Komplementär",
+    "Der Kommanditist",
+    "Beide gleichermaßen",
+    "Niemand, die Haftung ist auf das Gesellschaftsvermögen begrenzt"
+  ], a:0, e:"Der Komplementär haftet persönlich und führt die Geschäfte; der Kommanditist haftet nur mit seiner Einlage und hat vor allem Kontrollrechte." },
+  { id:"f108", t:"t_wirt", q:"Welchen Umfang hat die Prokura?", o:[
+    "Sie berechtigt zu allen Geschäften, die ein Handelsgewerbe gewöhnlich mit sich bringt – Grundstücksverkäufe nur mit ausdrücklicher Befugnis",
+    "Sie erlaubt alle Geschäfte ohne jede Ausnahme",
+    "Sie beschränkt sich auf eine einzelne Filiale",
+    "Sie gilt nur für Einkäufe bis 10.000 EUR"
+  ], a:0, e:"Die Prokura wird ins Handelsregister eingetragen. Ausgeschlossen sind Grundlagengeschäfte wie Bilanzunterzeichnung, Insolvenzantrag oder Unternehmensveräußerung." },
+  { id:"f109", t:"t_wirt", q:"Wie entsteht auf einem vollkommenen Markt der Gleichgewichtspreis?", o:[
+    "Dort, wo die angebotene und die nachgefragte Menge übereinstimmen",
+    "Durch staatliche Festsetzung",
+    "Durch Absprache der Anbieter",
+    "Immer zu den Vollkosten des günstigsten Anbieters"
+  ], a:0, e:"Oberhalb des Gleichgewichts entsteht Angebotsüberhang, darunter Nachfrageüberhang. Höchstpreise (Mietpreisbremse) und Mindestpreise (Mindestlohn) greifen in diesen Mechanismus ein." },
+  { id:"f110", t:"t_wirt", q:"Welches Verhalten verstößt gegen das Kartellverbot?", o:[
+    "Preisabsprachen zwischen Wettbewerbern",
+    "Ein Mengenrabatt für Großkunden",
+    "Werbung mit eigenen Leistungsvorteilen",
+    "Die Gründung einer Einkaufsgenossenschaft mit offenem Zugang"
+  ], a:0, e:"Verboten sind wettbewerbsbeschränkende Absprachen über Preise, Mengen, Gebiete und Kunden. Das Bundeskartellamt ahndet Verstöße mit hohen Bußgeldern." },
+  { id:"f111", t:"t_wirt", q:"Welche Konjunkturphase ist durch sinkende Auftragseingänge und steigende Arbeitslosigkeit gekennzeichnet?", o:[
+    "Rezession",
+    "Aufschwung",
+    "Hochkonjunktur",
+    "Depression mit erneutem Wachstum"
+  ], a:0, e:"Zyklus: Aufschwung, Hochkonjunktur (Boom), Rezession, Depression. Speditionen spüren Konjunkturwechsel früh an Sendungsmengen und Frachtraten." },
+
+  /* ---------- Kaufvertrag und Verbraucherschutz ---------- */
+  { id:"f112", t:"t_vertrag", q:"Wodurch kommt ein Kaufvertrag zustande?", o:[
+    "Durch zwei übereinstimmende Willenserklärungen – Antrag und Annahme",
+    "Durch die Lieferung der Ware",
+    "Durch die Zahlung des Kaufpreises",
+    "Durch die schriftliche Bestellung allein"
+  ], a:0, e:"Eine Anfrage ist keine Willenserklärung, ein Angebot bindet grundsätzlich. Verkaufsunterlagen ohne Bindungswillen sind freibleibend („invitatio ad offerendum“)." },
+  { id:"f113", t:"t_vertrag", q:"Welches Recht hat der Käufer bei einem Sachmangel vorrangig?", o:[
+    "Nacherfüllung, also Nachbesserung oder Ersatzlieferung",
+    "Sofortigen Rücktritt vom Vertrag",
+    "Sofortige Minderung des Kaufpreises",
+    "Schadensersatz statt der Leistung"
+  ], a:0, e:"§ 437 BGB: erst Nacherfüllung, dann Rücktritt oder Minderung, dann Schadensersatz. Die Verjährung beträgt bei beweglichen Sachen grundsätzlich zwei Jahre." },
+  { id:"f114", t:"t_vertrag", q:"Welche Frist gilt beim Widerrufsrecht im Fernabsatz an Verbraucher?", o:[
+    "14 Tage ab Erhalt der Ware",
+    "7 Tage ab Vertragsschluss",
+    "30 Tage ab Bestellung",
+    "Es gibt kein Widerrufsrecht im Fernabsatz"
+  ], a:0, e:"Ohne ordnungsgemäße Widerrufsbelehrung verlängert sich die Frist auf bis zu zwölf Monate und 14 Tage." },
+  { id:"f115", t:"t_vertrag", q:"Was kennzeichnet die Haftung nach dem Produkthaftungsgesetz?", o:[
+    "Der Hersteller haftet verschuldensunabhängig für Schäden durch ein fehlerhaftes Produkt",
+    "Der Hersteller haftet nur bei Vorsatz",
+    "Der Händler haftet immer vorrangig",
+    "Die Haftung setzt einen Vertrag mit dem Geschädigten voraus"
+  ], a:0, e:"Erfasst werden Personenschäden und Sachschäden an anderen Sachen. Bei Sachschäden gilt eine Selbstbeteiligung von 500 EUR; neben dem ProdHaftG bleibt die Produzentenhaftung nach § 823 BGB möglich." },
+  { id:"f116", t:"t_vertrag", q:"Was bewirkt ein einfacher Eigentumsvorbehalt?", o:[
+    "Das Eigentum geht erst mit vollständiger Zahlung des Kaufpreises über",
+    "Der Käufer darf die Ware nicht nutzen",
+    "Der Verkäufer bleibt dauerhaft Eigentümer",
+    "Die Ware kann nicht weiterverkauft werden"
+  ], a:0, e:"Der Verkäufer sichert sich gegen Zahlungsausfall. Der verlängerte Eigentumsvorbehalt erstreckt sich auf Weiterverkauf und Forderungsabtretung." },
+  { id:"f117", t:"t_vertrag", q:"Wie werden AGB gegenüber einem Kaufmann wirksam einbezogen?", o:[
+    "Durch Hinweis auf die AGB vor oder bei Vertragsschluss, ohne dass eine Aushändigung nötig ist",
+    "Nur durch unterschriebene Einzelvereinbarung",
+    "Durch bloßen Abdruck auf der Rechnung",
+    "Sie gelten kraft Gesetzes immer"
+  ], a:0, e:"Gegenüber Verbrauchern ist zusätzlich die Möglichkeit der Kenntnisnahme erforderlich. Überraschende Klauseln werden auch im kaufmännischen Verkehr nicht Vertragsinhalt." },
+
+  /* ---------- Nachhaltigkeit und Arbeitsschutz ---------- */
+  { id:"f118", t:"t_nachh", q:"Welcher Verkehrsträger verursacht im Güterverkehr je Tonnenkilometer typischerweise die geringsten CO₂-Emissionen?", o:[
+    "Die elektrifizierte Schiene",
+    "Der Lkw",
+    "Das Flugzeug",
+    "Der Transporter unter 3,5 t"
+  ], a:0, e:"Reihenfolge der spezifischen Emissionen: Schiene und Binnenschiff niedrig, Lkw deutlich höher, Luftfracht am höchsten. Darauf beruht die Verkehrsverlagerung im Kombinierten Verkehr." },
+  { id:"f119", t:"t_nachh", q:"Was ist eine Gefährdungsbeurteilung?", o:[
+    "Die systematische Ermittlung und Bewertung von Gefährdungen am Arbeitsplatz mit Festlegung von Maßnahmen",
+    "Die Beurteilung der Mitarbeiterleistung",
+    "Eine Prüfung der Fahrzeugversicherung",
+    "Eine Bewertung der Kundenbonität"
+  ], a:0, e:"Pflicht des Arbeitgebers nach Arbeitsschutzgesetz, zu dokumentieren und regelmäßig fortzuschreiben. Im Lager typische Themen: Flurförderzeuge, Regalprüfung, Lärm, Heben und Tragen." },
+  { id:"f120", t:"t_nachh", q:"Ab welcher Ausfallzeit ist ein Arbeitsunfall der Berufsgenossenschaft zu melden?", o:[
+    "Wenn der Beschäftigte mehr als drei Tage arbeitsunfähig ist",
+    "Ab dem ersten Ausfalltag",
+    "Erst ab zwei Wochen Arbeitsunfähigkeit",
+    "Nur bei tödlichen Unfällen"
+  ], a:0, e:"Unfälle mit mehr als drei Tagen Arbeitsunfähigkeit sind binnen drei Tagen anzuzeigen; tödliche und schwere Unfälle sofort. Jeder Unfall gehört zusätzlich ins Verbandbuch." },
+  { id:"f121", t:"t_nachh", q:"Welche Rangfolge gibt das Kreislaufwirtschaftsgesetz vor?", o:[
+    "Vermeidung, Vorbereitung zur Wiederverwendung, Recycling, sonstige Verwertung, Beseitigung",
+    "Beseitigung, Recycling, Vermeidung",
+    "Recycling, Vermeidung, Beseitigung",
+    "Verwertung und Beseitigung sind gleichrangig"
+  ], a:0, e:"In der Logistik heißt das konkret: Mehrwegladungsträger, Packmittel reduzieren, Paletten im Tauschsystem, Verpackungen getrennt erfassen." },
+  { id:"f122", t:"t_nachh", q:"Wozu verpflichtet die Nachhaltigkeitsberichterstattung größere Unternehmen?", o:[
+    "Umwelt-, Sozial- und Governance-Angaben offenzulegen, einschließlich Emissionen der Wertschöpfungskette",
+    "Ausschließlich den Stromverbrauch zu melden",
+    "Eine CO₂-Steuer direkt an Kunden weiterzugeben",
+    "Nur freiwillige Angaben zu machen"
+  ], a:0, e:"Für Speditionen wird die Berechnung der Transportemissionen (ISO 14083/GLEC) zur Kundenanforderung – auch wenn das eigene Unternehmen selbst nicht berichtspflichtig ist." }
+];
+
+/* Rechenaufgaben: a = Ergebnis, tol = Toleranz, eh = Einheit, w = Rechenweg */
+const RECHNEN = [
+  { id:"r01", t:"t_sammel", q:"Eine Sendung besteht aus 6 Gitterboxen mit je 120 × 80 × 160 cm und je 420 kg. Wie hoch ist das frachtpflichtige Gewicht bei 1 m³ = 333 kg?", a:3069, tol:3, eh:"kg",
+    w:"Volumen je Box 1,20 × 0,80 × 1,60 = 1,536 m³ → 6 × 1,536 = 9,216 m³. Volumengewicht 9,216 × 333 = 3.068,93 kg. Tatsächlich 6 × 420 = 2.520 kg. Frachtpflichtig ist der höhere Wert: 3.069 kg." },
+  { id:"r02", t:"t_sammel", q:"8 Europaletten (je 0,4 Lademeter) wiegen zusammen 4.000 kg. Wie hoch ist das frachtpflichtige Gewicht bei 1 ldm = 1.850 kg?", a:5920, tol:5, eh:"kg",
+    w:"8 × 0,4 = 3,2 ldm. 3,2 × 1.850 = 5.920 kg gegenüber 4.000 kg tatsächlich. Frachtpflichtig: 5.920 kg." },
+  { id:"r03", t:"t_luft", q:"Eine Luftfrachtsendung misst 110 × 80 × 90 cm und wiegt 95 kg. Wie hoch ist das frachtpflichtige Gewicht (Schlüssel 1:6000)?", a:132, tol:1, eh:"kg",
+    w:"110 × 80 × 90 = 792.000 cm³ : 6.000 = 132 kg Volumengewicht gegenüber 95 kg tatsächlich. Chargeable Weight: 132 kg." },
+  { id:"r04", t:"t_luft", q:"Frachtpflichtig sind 132 kg, die Rate beträgt 2,80 EUR/kg, Mindestfracht 150,00 EUR. Wie hoch ist die Luftfracht?", a:369.60, tol:0.05, eh:"EUR",
+    w:"132 × 2,80 = 369,60 EUR. Die Mindestfracht von 150,00 EUR wird überschritten und bleibt damit ohne Wirkung." },
+  { id:"r05", t:"t_luft", q:"Eine Sendung wiegt 96 kg. Rate bis 99 kg: 4,20 EUR/kg, ab 100 kg: 3,85 EUR/kg. Welcher Frachtbetrag ist abzurechnen?", a:385, tol:0.05, eh:"EUR",
+    w:"96 × 4,20 = 403,20 EUR gegenüber 100 × 3,85 = 385,00 EUR. Die günstigere höhere Gewichtsstufe gilt: 385,00 EUR." },
+  { id:"r06", t:"t_see", q:"12 Kisten mit je 0,90 m³ wiegen zusammen 7.200 kg. Die Seefrachtrate beträgt 95,00 USD je Frachteinheit (W/M). Wie hoch ist die Seefracht?", a:1026, tol:1, eh:"USD",
+    w:"Volumen 12 × 0,90 = 10,8 m³; Gewicht 7,2 t. Maßgeblich ist der höhere Wert: 10,8 Frachteinheiten × 95,00 = 1.026,00 USD." },
+  { id:"r07", t:"t_recht", q:"Bei einem Unfall gehen 850 kg Ware verloren. Haftung nach CMR mit 8,33 SZR/kg, Kurs 1 SZR = 1,18 EUR. Wie hoch ist die Höchsthaftung?", a:8354.99, tol:1, eh:"EUR",
+    w:"850 × 8,33 = 7.080,50 SZR; 7.080,50 × 1,18 = 8.354,99 EUR. Übersteigt der Warenwert diesen Betrag, bleibt der Rest beim Versender – Argument für die Warenversicherung." },
+  { id:"r08", t:"t_luft", q:"320 kg Luftfracht gehen verloren. Haftung nach Montrealer Übereinkommen mit 22 SZR/kg, Kurs 1 SZR = 1,18 EUR. Wie hoch ist die Höchsthaftung?", a:8307.20, tol:1, eh:"EUR",
+    w:"320 × 22 = 7.040 SZR; 7.040 × 1,18 = 8.307,20 EUR." },
+  { id:"r09", t:"t_lager", q:"Anfangsbestand 180.000 EUR, Endbestand 120.000 EUR, Jahresabgang 1.200.000 EUR. Wie hoch ist die Umschlagshäufigkeit?", a:8, tol:0.05, eh:"mal",
+    w:"⌀Lagerbestand (180.000 + 120.000) : 2 = 150.000 EUR. 1.200.000 : 150.000 = 8." },
+  { id:"r10", t:"t_lager", q:"Die Umschlagshäufigkeit beträgt 8. Wie hoch ist die durchschnittliche Lagerdauer (Jahr mit 360 Tagen)?", a:45, tol:0.5, eh:"Tage",
+    w:"360 : 8 = 45 Tage." },
+  { id:"r11", t:"t_lager", q:"Durchschnittliche Lagerdauer 45 Tage, Jahreszinssatz 6 %. Wie hoch ist der Lagerzinssatz?", a:0.75, tol:0.02, eh:"%",
+    w:"6 × 45 : 360 = 0,75 %. Bei 150.000 EUR ⌀Lagerbestand sind das 1.125 EUR Lagerzinsen." },
+  { id:"r12", t:"t_zoll", q:"Warenwert 24.000 EUR, Fracht bis EU-Außengrenze 1.500 EUR, Zollsatz 4,7 %. Wie hoch ist der Zoll?", a:1198.50, tol:0.5, eh:"EUR",
+    w:"Zollwert 24.000 + 1.500 = 25.500 EUR. 25.500 × 4,7 % = 1.198,50 EUR." },
+  { id:"r13", t:"t_zoll", q:"Zollwert 25.500 EUR, Zoll 1.198,50 EUR, Inlandsfracht bis zum ersten Bestimmungsort 300 EUR, Steuersatz 19 %. Wie hoch ist die Einfuhrumsatzsteuer?", a:5129.72, tol:1, eh:"EUR",
+    w:"Bemessungsgrundlage 25.500 + 1.198,50 + 300 = 26.998,50 EUR; × 19 % = 5.129,72 EUR. Als Vorsteuer abziehbar, wenn der Einführer vorsteuerabzugsberechtigt ist." },
+  { id:"r14", t:"t_kost", q:"Erlös je Sendung 420 EUR, variable Kosten 265 EUR, Fixkosten 46.500 EUR. Wie viele Sendungen sind für den Break-even nötig?", a:300, tol:1, eh:"Sendungen",
+    w:"Deckungsbeitrag 420 − 265 = 155 EUR. 46.500 : 155 = 300 Sendungen." },
+  { id:"r15", t:"t_zahl", q:"2 % Skonto bei Zahlung innerhalb von 10 Tagen, Zahlungsziel 30 Tage. Wie hoch ist der Jahreszins des Lieferantenkredits?", a:36, tol:0.5, eh:"%",
+    w:"2 × 360 : (30 − 10) = 36 % pro Jahr." },
+  { id:"r16", t:"t_kost", q:"Ein Lkw verursacht 4.200 EUR Fixkosten im Monat und 0,42 EUR variable Kosten je km. Bei 9.000 km im Monat: Wie hoch sind die Kosten je Kilometer?", a:0.89, tol:0.01, eh:"EUR/km",
+    w:"4.200 : 9.000 = 0,4667 EUR/km fix; plus 0,42 EUR/km variabel = 0,8867 ≈ 0,89 EUR/km. Jeder zusätzliche Kilometer verteilt die Fixkosten weiter." },
+  { id:"r17", t:"t_buch", q:"Ein Lkw kostet 132.000 EUR und wird linear über 8 Jahre abgeschrieben. Wie hoch ist die jährliche Abschreibung?", a:16500, tol:5, eh:"EUR",
+    w:"132.000 : 8 = 16.500 EUR je Jahr. Nach drei Jahren beträgt der Buchwert 82.500 EUR." },
+  { id:"r18", t:"t_kalk", q:"Eine Rechnung lautet auf 18.400,00 USD. Der Kurs ist 1 EUR = 1,0850 USD. Wie hoch ist der Betrag in Euro?", a:16958.53, tol:2, eh:"EUR",
+    w:"18.400 : 1,0850 = 16.958,53 EUR. Division bei Fremdwährung in Euro, Multiplikation bei Euro in Fremdwährung." },
+  { id:"r19", t:"t_strasse", q:"Das zulässige Gesamtgewicht eines Sattelzuges beträgt 40 t, das Leergewicht 15,2 t. Wie hoch ist die Nutzlast?", a:24.8, tol:0.1, eh:"t",
+    w:"40 − 15,2 = 24,8 t. Bei Volumenladung begrenzt eher der Laderaum (ca. 34 Palettenplätze) als die Nutzlast." },
+  { id:"r20", t:"t_sammel", q:"Grundfracht 780,00 EUR, Dieselzuschlag 14,5 %. Wie hoch ist der Rechnungsbetrag ohne Umsatzsteuer?", a:893.10, tol:0.2, eh:"EUR",
+    w:"780 × 14,5 % = 113,10 EUR Zuschlag; 780 + 113,10 = 893,10 EUR." },
+  { id:"r21", t:"t_kalk", q:"Umsatz 3.700.000 EUR, Gewinn 148.000 EUR. Wie hoch ist die Umsatzrentabilität?", a:4, tol:0.1, eh:"%",
+    w:"148.000 × 100 : 3.700.000 = 4 %." },
+  { id:"r22", t:"t_see", q:"In einen 20-Fuß-Container mit 33 m³ nutzbarem Laderaum sollen Kartons mit je 0,045 m³ geladen werden. Wie viele passen rein, wenn 10 % Stauverlust eingerechnet werden?", a:660, tol:5, eh:"Kartons",
+    w:"Nutzbar 33 × 0,9 = 29,7 m³. 29,7 : 0,045 = 660 Kartons. Zusätzlich die Nutzlast von rund 28 t prüfen." }
+];
+
+/* Lernkarten */
+const KARTEN = [
+  { id:"k01", t:"t_recht", v:"Speditionsvertrag (§ 453 HGB)", h:"Der Spediteur verpflichtet sich, die Versendung des Gutes zu besorgen: Frachtführer auswählen, Verträge in eigenem Namen schließen, Papiere und Zollabwicklung organisieren. Vergütung ist die Provision, nicht die Fracht." },
+  { id:"k02", t:"t_recht", v:"Frachtvertrag (§ 407 HGB)", h:"Der Frachtführer schuldet die Beförderung des Gutes zum Bestimmungsort und die Ablieferung an den Empfänger. Er haftet in der Obhutszeit verschuldensunabhängig bis 8,33 SZR/kg." },
+  { id:"k03", t:"t_recht", v:"Selbsteintritt (§ 458 HGB)", h:"Der Spediteur führt die Beförderung selbst aus. Er erhält die Fracht und hat die Rechte und Pflichten eines Frachtführers." },
+  { id:"k04", t:"t_recht", v:"Spedition zu festen Kosten (§ 459 HGB)", h:"Festpreis einschließlich Fracht und Nebenkosten. Der Spediteur haftet nach Frachtrecht; Zwischengewinne bleiben bei ihm." },
+  { id:"k05", t:"t_recht", v:"Sammelladungsspedition (§ 460 HGB)", h:"Der Spediteur bündelt Einzelsendungen zu einer Ladung. Hinsichtlich der Beförderung gelten Frachtführerrechte und -pflichten." },
+  { id:"k06", t:"t_recht", v:"Verjährung im Frachtrecht", h:"Ein Jahr ab Ablieferung (§ 439 HGB), drei Jahre bei Vorsatz oder Leichtfertigkeit mit Bewusstsein der Schadenswahrscheinlichkeit." },
+  { id:"k07", t:"t_recht", v:"Schadensanzeige (§ 438 HGB)", h:"Erkennbare Schäden: spätestens bei Ablieferung. Verdeckte Schäden: innerhalb von sieben Tagen. Sonst gilt die Ware als ordnungsgemäß abgeliefert." },
+  { id:"k08", t:"t_recht", v:"ADSp 2017 – Haftungsgrenzen", h:"Verkehrsvertrag: 8,33 SZR/kg, gekappt bei 1,25 Mio. EUR je Schadenfall bzw. 2 SZR/kg (höherer Betrag) und 2,5 Mio. EUR je Schadenereignis. Lagerung: 8,33 SZR/kg, max. 35.000 EUR je Schadenfall und 70.000 EUR je Inventurdifferenz." },
+  { id:"k09", t:"t_recht", v:"Absenderhaftung (§ 414 HGB)", h:"Verschuldensunabhängige Haftung für unrichtige Angaben, fehlende Gefahrguthinweise, mangelhafte Verpackung und Kennzeichnung." },
+  { id:"k10", t:"t_strasse", v:"CMR – Anwendungsbereich", h:"Entgeltliche Güterbeförderung auf der Straße, Übernahme- und Ablieferungsort in verschiedenen Staaten, mindestens einer davon Vertragsstaat. Haftung 8,33 SZR/kg." },
+  { id:"k11", t:"t_strasse", v:"Lenk- und Ruhezeiten", h:"Tageslenkzeit 9 h (2× wöchentlich 10 h), Woche 56 h, Doppelwoche 90 h. Pause 45 min nach 4,5 h (teilbar 15 + 30). Tagesruhezeit 11 h (3× wöchentlich 9 h), Wochenruhezeit 45 h (reduziert 24 h mit Ausgleich)." },
+  { id:"k12", t:"t_strasse", v:"Kabotage", h:"Nach einer grenzüberschreitenden Beförderung bis zu drei Inlandsfahrten in sieben Tagen, danach vier Tage Karenz im selben Mitgliedstaat." },
+  { id:"k13", t:"t_strasse", v:"Lkw-Maut", h:"Pflicht ab 7,5 t zGG auf Bundesfernstraßen. Teilsätze für Infrastruktur, Luftverschmutzung, Lärm und CO₂; Erfassung über On-Board-Unit, App oder Terminal." },
+  { id:"k14", t:"t_sammel", v:"Sammelgutverkehr – Ablauf", h:"Vorlauf im Nahverkehr → Umschlag beim Versandspediteur → Hauptlauf als Ladung → Umschlag beim Empfangsspediteur → Nachlauf im Nahverkehr. Begleitpapier ist das Bordero." },
+  { id:"k15", t:"t_sammel", v:"Frachtpflichtiges Gewicht", h:"Straße: 1 m³ = 333 kg, 1 ldm = ca. 1.850 kg. Luftfracht: 6.000 cm³ = 1 kg. Seefracht W/M: 1 t oder 1 m³. Maßgeblich ist immer der höhere Wert." },
+  { id:"k16", t:"t_see", v:"Konnossement (B/L)", h:"Empfangsbestätigung, Beweis des Seefrachtvertrags und Traditionspapier: Nur gegen Vorlage des Originals wird ausgeliefert, deshalb im Akkreditivgeschäft unverzichtbar." },
+  { id:"k17", t:"t_see", v:"FCL und LCL", h:"FCL: ein Versender nutzt den ganzen Container, Packen beim Versender. LCL: Sammelcontainer, Stuffing und Stripping im Container Freight Station." },
+  { id:"k18", t:"t_see", v:"Containermaße (Faustwerte)", h:"20': ca. 33 m³, Nutzlast ca. 28 t. 40': ca. 67 m³. 40' High Cube: ca. 76 m³. Schwere Ladung stößt an die Nutzlast, leichte an das Volumen." },
+  { id:"k19", t:"t_see", v:"Demurrage und Detention", h:"Demurrage: Liegegeld für den Container im Terminal nach Ablauf der Freitage. Detention: Standgeld für den Container außerhalb des Terminals beim Kunden." },
+  { id:"k20", t:"t_luft", v:"Air Waybill (AWB)", h:"Beweis des Vertrags, Empfangsbestätigung, Abrechnungs- und Zollgrundlage – aber kein Traditionspapier und nicht übertragbar. Drei Originale: Carrier, Consignee, Shipper." },
+  { id:"k21", t:"t_luft", v:"Chargeable Weight", h:"Höherer Wert aus tatsächlichem Gewicht und Volumengewicht (L × B × H in cm : 6.000). Zusätzlich die günstigere höhere Gewichtsstufe prüfen." },
+  { id:"k22", t:"t_luft", v:"Luftsicherheit", h:"Bekannter Versender liefert sichere Fracht an den reglementierten Beauftragten. Unsichere Fracht muss kontrolliert werden (Röntgen, Sprengstoffspürhund, andere zugelassene Verfahren)." },
+  { id:"k23", t:"t_bahn", v:"Kombinierter Verkehr", h:"Unbegleitet: Container, Wechselbrücke, kranbarer Sattelauflieger. Begleitet: Rollende Landstraße mit Fahrer. Vorteil: Flächenbedienung der Straße plus Massenleistung der Schiene." },
+  { id:"k24", t:"t_bahn", v:"Haftungsgrenzen im Vergleich", h:"CIM/Schiene 17 SZR/kg · CMR/HGB Straße 8,33 SZR/kg · Luftfracht (MÜ) 22 SZR/kg · Seefracht 666,67 SZR/Stück oder 2 SZR/kg · Binnenschiff (CMNI) wie Seefracht." },
+  { id:"k25", t:"t_lager", v:"Lagerkennzahlen", h:"⌀Lagerbestand = (AB + EB) : 2 · Umschlagshäufigkeit = Jahresabgang : ⌀Bestand · ⌀Lagerdauer = 360 : UH · Lagerzinssatz = Jahreszins × Lagerdauer : 360." },
+  { id:"k26", t:"t_lager", v:"Kontraktlogistik", h:"Langfristige, kundenindividuelle Verträge mit Mehrwertleistungen (Kommissionierung, Konfektionierung, Retouren, Qualitätskontrolle). Hohe Bindung, hohe Vorleistung, längere Amortisation." },
+  { id:"k27", t:"t_lager", v:"Cross-Docking", h:"Umschlag ohne Einlagerung: Eingangsware wird direkt für Ausgangstouren kommissioniert. Senkt Bestände und Durchlaufzeit, verlangt präzise Avise und Termintreue." },
+  { id:"k28", t:"t_lager", v:"ABC-Analyse", h:"A: wenige Artikel, hoher Wertanteil – kurze Wege, enge Kontrolle. B: mittlere Bedeutung. C: viele Artikel, geringer Anteil – vereinfachte Steuerung." },
+  { id:"k29", t:"t_zoll", v:"Incoterms 2020 – Gruppen", h:"E: EXW (Abholung). F: FCA, FAS, FOB (Versandklauseln, Käufer zahlt Hauptfracht). C: CFR, CIF, CPT, CIP (Verkäufer zahlt Fracht, Gefahr geht früher über). D: DAP, DPU, DDP (Ankunftsklauseln)." },
+  { id:"k30", t:"t_zoll", v:"Zollwert und EUSt", h:"Zollwert = Transaktionswert + Kosten bis zur EU-Außengrenze. Einfuhrumsatzsteuer-Bemessungsgrundlage = Zollwert + Zoll + Kosten bis zum ersten Bestimmungsort im Inland." },
+  { id:"k31", t:"t_zoll", v:"Unionsversandverfahren", h:"T1 für Nicht-Unionswaren, T2 für Unionswaren über Drittländer. Bewegung unter zollamtlicher Überwachung mit Sicherheitsleistung, Abwicklung elektronisch über ATLAS/NCTS." },
+  { id:"k32", t:"t_zoll", v:"Präferenznachweise", h:"Erklärung zum Ursprung durch registrierte Ausführer (REX), EUR.1 bzw. EUR-MED, Lieferantenerklärung für die Vorkette. Wirkung: reduzierter oder entfallender Zoll im Partnerland." },
+  { id:"k33", t:"t_vers", v:"Verkehrshaftung vs. Warenversicherung", h:"Verkehrshaftungsversicherung schützt die Haftung des Dienstleisters (begrenzt, verschuldensabhängige Ausschlüsse). Die Warentransportversicherung deckt den Warenwert des Versenders – ICC A, B oder C." },
+  { id:"k34", t:"t_vers", v:"Versicherungssumme bei CIF/CIP", h:"110 % des Warenwerts in der Vertragswährung, Deckung vom Lieferort bis zum benannten Bestimmungsort. CIP verlangt ICC A, CIF nur ICC C." },
+  { id:"k35", t:"t_gefahr", v:"Gefahrgutregelwerke", h:"ADR Straße · RID Schiene · ADN Binnenschiff · IMDG-Code Seeschiff · IATA-DGR/ICAO-TI Luftfracht. Neun Gefahrklassen, Kennzeichnung über UN-Nummer und Gefahrzettel." },
+  { id:"k36", t:"t_gefahr", v:"Verladeverantwortung (§ 412 HGB)", h:"Absender: beförderungssichere Verladung und Sicherung. Frachtführer: betriebssichere Verladung, Achslasten, Gesamtgewicht, Verkehrssicherheit. Technische Regel: VDI 2700 ff." },
+  { id:"k37", t:"t_buch", v:"Inventurarten", h:"Stichtagsinventur am Abschlusstag · verlegte Inventur mit Wertfortschreibung (3 Monate vor / 2 Monate nach dem Stichtag) · permanente Inventur über die Lagerbuchführung · Stichprobeninventur." },
+  { id:"k38", t:"t_buch", v:"Rückstellung oder Verbindlichkeit?", h:"Rückstellung: Verpflichtung dem Grund nach sicher, Höhe oder Zeitpunkt ungewiss. Verbindlichkeit: Betrag und Fälligkeit stehen fest." },
+  { id:"k39", t:"t_kost", v:"Kalkulatorische Kosten", h:"Zusatzkosten ohne Aufwand (kalkulatorischer Unternehmerlohn, kalkulatorische Miete, Eigenkapitalzinsen) und Anderskosten mit abweichender Höhe (kalkulatorische Abschreibung vom Wiederbeschaffungswert, Wagnisse)." },
+  { id:"k40", t:"t_kost", v:"Fixe und variable Lkw-Kosten", h:"Fix: Abschreibung, Versicherung, Kfz-Steuer, Verwaltung, Grundlohn. Variabel: Diesel, AdBlue, Maut, Reifen, leistungsabhängige Reparatur. Je mehr Kilometer, desto niedriger die Fixkosten je km." },
+  { id:"k41", t:"t_kost", v:"Deckungsbeitrag und Break-even", h:"DB = Erlös − variable Kosten. Break-even-Menge = Fixkosten : DB je Einheit. Unter Vollkosten kann ein Auftrag kurzfristig tragfähig sein, solange der DB positiv ist." },
+  { id:"k42", t:"t_kalk", v:"Bezugskalkulation", h:"Listeneinkaufspreis − Rabatt = Zieleinkaufspreis − Skonto = Bareinkaufspreis + Bezugskosten = Bezugspreis. Erst der Bezugspreis macht Angebote vergleichbar." },
+  { id:"k43", t:"t_kalk", v:"Wichtige Kennzahlen", h:"Eigenkapitalquote = EK × 100 : GK · Umsatzrentabilität = Gewinn × 100 : Umsatz · EK-Rentabilität = Gewinn × 100 : EK · Liquidität 1. Grades = flüssige Mittel × 100 : kurzfristige Verbindlichkeiten." },
+  { id:"k44", t:"t_zahl", v:"Verzug und Verzugszinsen", h:"Verzug nach Mahnung oder 30 Tagen nach Rechnungszugang. Zinsen: 5 Prozentpunkte über Basiszins gegenüber Verbrauchern, 9 Prozentpunkte zwischen Unternehmen plus 40 EUR Pauschale." },
+  { id:"k45", t:"t_zahl", v:"Reverse Charge im Transport", h:"Transportleistung an EU-Unternehmer: Leistungsort beim Empfänger (§ 3a Abs. 2 UStG), Rechnung ohne Steuer mit Hinweis auf die Steuerschuldumkehr, beide USt-IdNr. angeben, Zusammenfassende Meldung abgeben." },
+  { id:"k46", t:"t_ausb", v:"Pflichten im Ausbildungsverhältnis", h:"Ausbildender: planmäßige Ausbildung, kostenlose Ausbildungsmittel, Freistellung für Schule und Prüfung, Zeugnis. Auszubildender: Lernpflicht, Weisungen beachten, Berichtsheft, Sorgfalt, Schweigepflicht." },
+  { id:"k47", t:"t_ausb", v:"Rangordnung der Rechtsquellen", h:"EU-Recht → Gesetz → Tarifvertrag → Betriebsvereinbarung → Arbeitsvertrag → Weisung. Günstigkeitsprinzip: die für den Arbeitnehmer bessere Regelung setzt sich durch." },
+  { id:"k48", t:"t_ausb", v:"Betriebsrat", h:"Wählbar ab fünf wahlberechtigten Arbeitnehmern, Wahl alle vier Jahre. Echte Mitbestimmung u. a. bei Arbeitszeit, Urlaubsgrundsätzen, technischer Überwachung und betrieblicher Lohngestaltung (§ 87 BetrVG)." },
+  { id:"k49", t:"t_sozial", v:"Fünf Zweige der Sozialversicherung", h:"Kranken-, Pflege-, Renten-, Arbeitslosen- und Unfallversicherung. Die Unfallversicherung zahlt allein der Arbeitgeber (Berufsgenossenschaft, für Verkehr die BG Verkehr)." },
+  { id:"k50", t:"t_sozial", v:"Beitragssätze 2026", h:"RV 18,6 % · AV 2,6 % · KV 14,6 % plus kassenindividueller Zusatzbeitrag · PV 3,6 % (kinderlos ab 23 Jahren 4,2 %). Regelmäßig hälftig geteilt. Beitragsbemessungsgrenzen jährlich prüfen." },
+  { id:"k51", t:"t_sozial", v:"Entgeltfortzahlung", h:"Bis zu sechs Wochen durch den Arbeitgeber nach vierwöchiger Beschäftigung, danach Krankengeld der Kasse: 70 % des Brutto-, höchstens 90 % des Nettoentgelts." },
+  { id:"k52", t:"t_wirt", v:"Rechtsformen im Überblick", h:"Einzelunternehmen: volle Haftung. OHG: alle Gesellschafter unbeschränkt. KG: Komplementär unbeschränkt, Kommanditist mit Einlage. GmbH: 25.000 EUR Stammkapital. AG: 50.000 EUR Grundkapital. UG: ab 1 EUR mit Rücklagepflicht." },
+  { id:"k53", t:"t_wirt", v:"Prokura", h:"Handlungsvollmacht für alle gewöhnlichen Geschäfte des Handelsgewerbes, eingetragen im Handelsregister. Nicht umfasst: Grundstücksverkauf ohne besondere Befugnis, Bilanzunterzeichnung, Insolvenzantrag, Unternehmensverkauf." },
+  { id:"k54", t:"t_vertrag", v:"Rechte bei Sachmängeln", h:"Nacherfüllung (Nachbesserung oder Ersatzlieferung) → Rücktritt oder Minderung → Schadensersatz. Verjährung bei beweglichen Sachen zwei Jahre; beim Verbrauchsgüterkauf gilt im ersten Jahr die Beweislastumkehr." },
+  { id:"k55", t:"t_vertrag", v:"Produkthaftung", h:"ProdHaftG: verschuldensunabhängige Haftung des Herstellers für Personen- und Sachschäden durch fehlerhafte Produkte, Selbstbeteiligung 500 EUR bei Sachschäden. Daneben § 823 BGB (Produzentenhaftung)." },
+  { id:"k56", t:"t_nachh", v:"Emissionen je Verkehrsträger", h:"Niedrig: elektrifizierte Schiene und Binnenschiff. Deutlich höher: Lkw. Am höchsten: Luftfracht. Berechnung der Transportemissionen nach ISO 14083 bzw. GLEC-Framework." },
+  { id:"k57", t:"t_nachh", v:"Arbeitsschutz im Lager", h:"Gefährdungsbeurteilung, Unterweisung, PSA (Sicherheitsschuhe, Warnweste), jährliche Regalprüfung, Flurförderzeugausweis, Verbandbuch; Unfälle mit mehr als drei Tagen Ausfall an die BG melden." },
+  { id:"k58", t:"t_recht", v:"SZR (Sonderziehungsrecht)", h:"Rechnungseinheit des Internationalen Währungsfonds, Grundlage aller Haftungsgrenzen im Transportrecht. Der Umrechnungskurs wird täglich veröffentlicht; für Schadensfälle gilt der Kurs am Tag der Zahlung bzw. des Urteils." },
+  { id:"k59", t:"t_sammel", v:"Lademeter (ldm)", h:"Ein Lademeter ist ein laufender Meter Ladefläche über die gesamte Breite. Europalette längs 0,4 ldm, quer 0,5 ldm; Industriepalette 0,5 ldm. Übliche Umrechnung 1 ldm = 1.850 kg." },
+  { id:"k60", t:"t_zoll", v:"AEO-Status", h:"Zugelassener Wirtschaftsbeteiligter: AEO-C für zollrechtliche Vereinfachungen, AEO-S für Sicherheit in der Lieferkette. Vorteile: weniger Kontrollen, Vorrang bei der Abfertigung, Anerkennung durch Partnerländer." }
+];
+
+/* Nachschlagetabellen */
+const TABELLEN = [
+  { id:"tb_haft", titel:"Haftungsgrenzen nach Verkehrsträger",
+    kopf:["Verkehrsträger / Regelwerk","Höchsthaftung","Hinweis"],
+    zeilen:[
+      ["Straße – HGB § 431 / CMR Art. 23","8,33 SZR je kg Rohgewicht","Durchbrechung bei Vorsatz und Leichtfertigkeit"],
+      ["Schiene – CIM (COTIF)","17 SZR je kg","Höchste Grenze im Landverkehr"],
+      ["Luftfracht – Montrealer Übereinkommen","22 SZR je kg","Grundsätzlich nicht durchbrechbar"],
+      ["Seefracht – HGB § 504 / Haag-Visby","666,67 SZR je Stück oder 2 SZR je kg","Der höhere Betrag gilt"],
+      ["Binnenschiff – CMNI","666,67 SZR je Packstück oder 2 SZR je kg","Niveau wie Seefracht"],
+      ["ADSp 2017, Verkehrsvertrag","8,33 SZR/kg, max. 1,25 Mio. EUR je Schadenfall bzw. 2 SZR/kg","Zusätzlich 2,5 Mio. EUR je Schadenereignis"],
+      ["ADSp 2017, Lagerung","8,33 SZR/kg, max. 35.000 EUR je Schadenfall","70.000 EUR je Inventurdifferenz"]
+    ],
+    fuss:"SZR = Sonderziehungsrecht des IWF. Für Berechnungen den aktuellen Kurs der Deutschen Bundesbank verwenden." },
+  { id:"tb_inco", titel:"Incoterms 2020",
+    kopf:["Klausel","Gefahrübergang","Hauptfracht zahlt","Versicherungspflicht"],
+    zeilen:[
+      ["EXW – Ab Werk","Bereitstellung beim Verkäufer","Käufer","keine"],
+      ["FCA – Frei Frachtführer","Übergabe an benannten Frachtführer","Käufer","keine"],
+      ["FAS – Frei Längsseite Schiff","Längsseite des Schiffes","Käufer","keine"],
+      ["FOB – Frei an Bord","An Bord des Schiffes","Käufer","keine"],
+      ["CPT – Frachtfrei","Übergabe an ersten Frachtführer","Verkäufer","keine"],
+      ["CIP – Frachtfrei versichert","Übergabe an ersten Frachtführer","Verkäufer","Verkäufer, ICC A, 110 %"],
+      ["CFR – Kosten und Fracht","An Bord des Schiffes","Verkäufer","keine"],
+      ["CIF – Kosten, Versicherung, Fracht","An Bord des Schiffes","Verkäufer","Verkäufer, ICC C, 110 %"],
+      ["DAP – Geliefert benannter Ort","Ankunft, entladebereit","Verkäufer","keine"],
+      ["DPU – Geliefert benannter Ort entladen","Nach Entladung am Zielort","Verkäufer","keine"],
+      ["DDP – Geliefert verzollt","Ankunft, Einfuhrabgaben bezahlt","Verkäufer","keine"]
+    ],
+    fuss:"FAS, FOB, CFR und CIF sind reine See- und Binnenschiffsklauseln. Für Container ist FCA bzw. CPT/CIP sachgerecht. DPU ersetzt das frühere DAT." },
+  { id:"tb_lenk", titel:"Lenk- und Ruhezeiten (VO (EG) 561/2006)",
+    kopf:["Regelung","Wert","Ausnahme"],
+    zeilen:[
+      ["Tageslenkzeit","9 Stunden","2× pro Woche 10 Stunden"],
+      ["Wochenlenkzeit","56 Stunden","–"],
+      ["Doppelwoche","90 Stunden","–"],
+      ["Lenkzeitunterbrechung","45 Minuten nach 4,5 Stunden","Teilung nur 15 + 30 Minuten"],
+      ["Tägliche Ruhezeit","11 Stunden","3× pro Woche 9 Stunden; Teilung 3 + 9 Stunden"],
+      ["Wöchentliche Ruhezeit","45 Stunden","reduziert 24 Stunden mit Ausgleich in 3 Wochen"]
+    ],
+    fuss:"Aufzeichnung über den digitalen Fahrtenschreiber; Verstöße werden gegen Fahrer und Unternehmen geahndet." },
+  { id:"tb_gewicht", titel:"Frachtpflichtiges Gewicht und Umrechnungsschlüssel",
+    kopf:["Verkehrsart","Schlüssel","Rechenweg"],
+    zeilen:[
+      ["Straße, Stückgut","1 m³ = 333 kg","L × B × H in m × Anzahl × 333"],
+      ["Straße, Lademeter","1 ldm = ca. 1.850 kg","Palettenplätze × ldm-Faktor × 1.850"],
+      ["Luftfracht","6.000 cm³ = 1 kg","L × B × H in cm : 6.000"],
+      ["Seefracht W/M","1 t oder 1 m³","höherer Wert aus Gewicht in t und Volumen in m³"],
+      ["Kurierdienste","meist 1 m³ = 200 kg","L × B × H in cm : 5.000"]
+    ],
+    fuss:"Immer der höhere Wert aus tatsächlichem Gewicht und Volumengewicht. Europalette längs 0,4 ldm, quer 0,5 ldm." },
+  { id:"tb_lager", titel:"Formeln Lager und Kennzahlen",
+    kopf:["Kennzahl","Formel"],
+    zeilen:[
+      ["Durchschnittlicher Lagerbestand","(Anfangsbestand + Endbestand) : 2"],
+      ["Umschlagshäufigkeit","Jahresabgang : durchschnittlicher Lagerbestand"],
+      ["Durchschnittliche Lagerdauer","360 : Umschlagshäufigkeit"],
+      ["Lagerzinssatz","Jahreszinssatz × Lagerdauer : 360"],
+      ["Lagerzinsen","⌀Lagerbestand (Wert) × Lagerzinssatz : 100"],
+      ["Deckungsbeitrag","Erlös − variable Kosten"],
+      ["Break-even-Menge","Fixkosten : Deckungsbeitrag je Einheit"],
+      ["Eigenkapitalquote","Eigenkapital × 100 : Gesamtkapital"],
+      ["Umsatzrentabilität","Gewinn × 100 : Umsatz"],
+      ["Kosten je Kilometer","(Fixkosten : gefahrene km) + variable Kosten je km"]
+    ],
+    fuss:"In der Prüfung mit 360 Tagen und 30-Tage-Monaten rechnen, sofern nichts anderes angegeben ist." },
+  { id:"tb_zoll", titel:"Zollverfahren und Begriffe",
+    kopf:["Verfahren / Begriff","Bedeutung"],
+    zeilen:[
+      ["Überlassung zum freien Verkehr","Ware wird Unionsware, Zoll und Einfuhrumsatzsteuer werden fällig"],
+      ["Unionsversand T1 / T2","Beförderung unter zollamtlicher Überwachung mit Sicherheitsleistung"],
+      ["Zolllagerverfahren","Lagerung ohne Abgaben, bis die Ware abgerufen oder wiederausgeführt wird"],
+      ["Aktive Veredelung","Einfuhr zur Bearbeitung, Abgaben entfallen bei Wiederausfuhr"],
+      ["Passive Veredelung","Ausfuhr zur Bearbeitung, bei Rückkehr nur die Wertsteigerung abgabenpflichtig"],
+      ["EORI-Nummer","Unionsweite Registriernummer des Wirtschaftsbeteiligten"],
+      ["ATLAS","IT-Verfahren der deutschen Zollverwaltung für elektronische Anmeldungen"],
+      ["AEO","Zugelassener Wirtschaftsbeteiligter: C (Vereinfachungen), S (Sicherheit)"],
+      ["Präferenznachweis","Ursprungserklärung, EUR.1 oder REX-Erklärung für Zollvorteile"]
+    ],
+    fuss:"Ausfuhranmeldungen sind grundsätzlich ab einem Warenwert von 1.000 EUR elektronisch abzugeben." },
+  { id:"tb_sozial", titel:"Sozialversicherung 2026",
+    kopf:["Zweig","Beitragssatz","Träger / Aufteilung"],
+    zeilen:[
+      ["Rentenversicherung","18,6 %","je 9,3 % Arbeitgeber und Arbeitnehmer"],
+      ["Arbeitslosenversicherung","2,6 %","je 1,3 %"],
+      ["Krankenversicherung","14,6 % + Zusatzbeitrag","hälftig, Zusatzbeitrag kassenindividuell"],
+      ["Pflegeversicherung","3,6 %","hälftig; kinderlos ab 23 Jahren 4,2 %"],
+      ["Unfallversicherung","Gefahrtarif der Berufsgenossenschaft","allein der Arbeitgeber"]
+    ],
+    fuss:"Gesetzlicher Mindestlohn ab 1.1.2026: 13,90 EUR je Stunde. Beitragsbemessungsgrenzen ändern sich jährlich – aktuelle Werte vor der Prüfung prüfen." }
+];
+
+/* Leitfaden fallbezogenes Fachgespräch */
+const FACHGESPRAECH = {
+  ablauf:[
+    "Aufgabe aus der Praxis erhalten (Wahl zwischen zwei Fällen), Vorbereitungszeit nutzen",
+    "Lösungsweg strukturiert darstellen – nicht nur das Ergebnis nennen",
+    "Fachgespräch mit dem Prüfungsausschuss, insgesamt höchstens 30 Minuten"
+  ],
+  raster:[
+    { titel:"Sachverhalt klären", punkte:["Wer ist Auftraggeber, wer Frachtführer, wer Empfänger?","Welche Verkehrsträger und Relationen sind betroffen?","Welche Termine, Mengen, Gewichte und Werte liegen vor?"] },
+    { titel:"Rechtlichen Rahmen benennen", punkte:["Speditions- oder Frachtvertrag, ADSp einbezogen?","Welches Übereinkommen gilt (CMR, MÜ, CIM, Seerecht)?","Welche Haftungsgrenze und welche Fristen folgen daraus?"] },
+    { titel:"Alternativen entwickeln", punkte:["Mindestens zwei Lösungswege mit Kosten, Laufzeit und Risiko","Nachhaltigkeit und Auslastung mitdenken","Nebenkosten: Maut, Zuschläge, Umschlag, Standgeld"] },
+    { titel:"Entscheiden und begründen", punkte:["Empfehlung klar aussprechen","Mit Zahlen belegen (Fracht, Deckungsbeitrag, Termin)","Risiken und ihre Absicherung nennen (Versicherung, Avise, Puffer)"] },
+    { titel:"Kundenkommunikation", punkte:["Was wird dem Kunden wann mitgeteilt?","Welche Dokumente gehen raus (Auftragsbestätigung, Avis, Schadenprotokoll)?","Welche interne Folge hat der Fall (Reklamation, Nachkalkulation)?"] }
+  ],
+  tipps:[
+    "Laut mitdenken: der Ausschuss bewertet den Weg, nicht nur die Lösung.",
+    "Fachbegriffe sauber verwenden – Spediteur, Frachtführer, Verfrachter sind nicht dasselbe.",
+    "Zahlen immer mit Einheit nennen, Rundungen benennen.",
+    "Bei Unsicherheit die Annahme offenlegen: „Ich gehe davon aus, dass …“ und dann weiterrechnen."
+  ]
+};
+
+/* ===================== Zustand und Speicherung ===================== */
+const SPEICHER_KEY = "pruefungstrainer-spl-v1";
+const BOX_TAGE = [0, 1, 3, 7, 16];   /* Leitner-Intervalle in Tagen je Box 1..5 */
+const TAG_MS = 86400000;
+
+const leerFortschritt = () => ({
+  stand: 0,
+  termin: null,
+  tagesziel: 20,
+  heute: { datum: "", karten: 0 },
+  serie: 0,
+  letzterLerntag: null,
+  karten: {},        /* id -> {box, faellig} */
+  fragen: {},        /* id -> {g, r, f, lr} */
+  pruefungen: []     /* {bereich, datum, punkte, note} */
+});
+
+let F = leerFortschritt();
+let dbRef = null;            /* DocumentReference, sobald verfügbar */
+let speicherTimer = null;
+
+const S = {
+  ansicht: "start",
+  lern:   { thema: "alle", stapel: [], aufgedeckt: false },
+  quiz:   { thema: "alle", liste: [], idx: 0, gewaehlt: null, richtig: 0, laenge: 10, fertig: false },
+  rechnen:{ reiter: "aufgaben", liste: [], idx: 0, geprueft: false, korrekt: false },
+  pruefung: { aktiv: false, bereich: null, teile: [], antworten: [], idx: 0, endzeit: 0, tick: null, ergebnis: null }
+};
+
+function heuteStr() { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+
+function lokalLesen() {
+  try { const r = localStorage.getItem(SPEICHER_KEY); return r ? JSON.parse(r) : null; } catch (e) { return null; }
+}
+function lokalSchreiben() {
+  try { localStorage.setItem(SPEICHER_KEY, JSON.stringify(F)); } catch (e) { /* privater Modus */ }
+}
+function sichern() {
+  F.stand = Date.now();
+  lokalSchreiben();
+  if (speicherTimer) clearTimeout(speicherTimer);
+  speicherTimer = setTimeout(async () => {
+    speicherTimer = null;
+    if (!dbRef) return;
+    try { await dbRef.set(JSON.parse(JSON.stringify(F))); } catch (e) { /* lokal bleibt erhalten */ }
+  }, 1200);
+}
+
+async function geraeteAbgleich() {
+  try {
+    const nutzer = await (window.claude && window.claude.use ? window.claude.use("user") : null);
+    const db = await (window.claude && window.claude.use ? window.claude.use("db") : null);
+    if (!db || !nutzer) return;
+    const uid = await nutzer.id();
+    if (!uid) return;
+    dbRef = db.doc("data/users/" + uid + "/fortschritt");
+    const schnapp = await dbRef.get();
+    if (schnapp.exists) {
+      const fern = schnapp.data();
+      if (fern && typeof fern.stand === "number" && fern.stand > (F.stand || 0)) {
+        F = Object.assign(leerFortschritt(), fern);
+        lokalSchreiben();
+        zeichne();
+      } else if ((F.stand || 0) > 0) {
+        await dbRef.set(JSON.parse(JSON.stringify(F)));
+      }
+    } else if ((F.stand || 0) > 0) {
+      await dbRef.set(JSON.parse(JSON.stringify(F)));
+    }
+    syncHinweis(true);
+  } catch (e) { /* ohne Abgleich weiterarbeiten */ }
+}
+
+function syncHinweis(an) {
+  const n = document.getElementById("sync-hinweis");
+  if (n) n.textContent = an ? "Fortschritt wird geräteübergreifend gesichert." : "Fortschritt wird nur in diesem Browser gespeichert.";
+}
+
+/* ===================== kleine Helfer ===================== */
+const $ = (s, w) => (w || document).querySelector(s);
+const alle = (s, w) => Array.from((w || document).querySelectorAll(s));
+function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+function zahl(n, d) {
+  if (!isFinite(n)) return "–";
+  return n.toLocaleString("de-DE", { minimumFractionDigits: d === undefined ? 2 : d, maximumFractionDigits: d === undefined ? 2 : d });
+}
+function zuZahl(s) {
+  let t = String(s === undefined || s === null ? "" : s).replace(/\s/g, "").replace(/[^0-9.,\-]/g, "");
+  if (t.indexOf(",") >= 0) t = t.replace(/\./g, "").replace(",", ".");
+  const n = parseFloat(t);
+  return isFinite(n) ? n : NaN;
+}
+function mische(a) { const b = a.slice(); for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = b[i]; b[i] = b[j]; b[j] = t; } return b; }
+/* Antwortreihenfolge je Durchlauf neu mischen, damit die Position nichts verrät */
+function mischOptionen(f) {
+  const p = mische(f.o.map((_, i) => i));
+  return { id: f.id, t: f.t, q: f.q, e: f.e, o: p.map(i => f.o[i]), a: p.indexOf(f.a) };
+}
+const thema = id => THEMEN.find(t => t.id === id);
+const bereichVon = themaId => { const t = thema(themaId); return t ? t.b : null; };
+const bereich = id => BEREICHE.find(b => b.id === id);
+
+/* ===================== Lernstand ===================== */
+function karteFaellig(id) {
+  const k = F.karten[id];
+  if (!k) return true;
+  return (k.faellig || 0) <= Date.now();
+}
+function faelligeKarten(themaFilter) {
+  return KARTEN.filter(k => (themaFilter === "alle" || k.t === themaFilter) && karteFaellig(k.id));
+}
+function karteBewerten(id, gewusst) {
+  const k = F.karten[id] || { box: 1, faellig: 0 };
+  k.box = gewusst ? Math.min(5, (k.box || 1) + 1) : 1;
+  k.faellig = Date.now() + BOX_TAGE[k.box - 1] * TAG_MS;
+  F.karten[id] = k;
+  const h = heuteStr();
+  if (F.heute.datum !== h) F.heute = { datum: h, karten: 0 };
+  F.heute.karten += 1;
+  if (F.letzterLerntag !== h) {
+    const gestern = new Date(Date.now() - TAG_MS);
+    const gStr = gestern.getFullYear() + "-" + String(gestern.getMonth() + 1).padStart(2, "0") + "-" + String(gestern.getDate()).padStart(2, "0");
+    F.serie = F.letzterLerntag === gStr ? (F.serie || 0) + 1 : 1;
+    F.letzterLerntag = h;
+  }
+  sichern();
+}
+function frageBewerten(id, richtig) {
+  const f = F.fragen[id] || { g: 0, r: 0, f: 0, lr: null };
+  f.g += 1;
+  if (richtig) { f.r += 1; f.lr = true; } else { f.f += 1; f.lr = false; }
+  F.fragen[id] = f;
+  sichern();
+}
+
+function bereichsStand(bid) {
+  const themen = THEMEN.filter(t => t.b === bid).map(t => t.id);
+  const karten = KARTEN.filter(k => themen.indexOf(k.t) >= 0);
+  const fragen = FRAGEN.filter(q => themen.indexOf(q.t) >= 0);
+  const rechnen = RECHNEN.filter(r => themen.indexOf(r.t) >= 0);
+  const kSicher = karten.filter(k => (F.karten[k.id] || {}).box >= 4).length;
+  const qSicher = fragen.concat(rechnen).filter(q => (F.fragen[q.id] || {}).lr === true).length;
+  const gesamt = karten.length + fragen.length + rechnen.length;
+  return {
+    karten: karten.length, kartenSicher: kSicher,
+    fragen: fragen.length + rechnen.length, fragenSicher: qSicher,
+    faellig: karten.filter(k => karteFaellig(k.id)).length,
+    prozent: gesamt ? Math.round((kSicher + qSicher) / gesamt * 100) : 0
+  };
+}
+
+function tageBisPruefung() {
+  if (!F.termin) return null;
+  const ziel = new Date(F.termin + "T00:00:00");
+  if (isNaN(ziel.getTime())) return null;
+  const heute = new Date(); heute.setHours(0, 0, 0, 0);
+  return Math.round((ziel - heute) / TAG_MS);
+}
+
+/* ===================== Navigation ===================== */
+function wechsle(name) {
+  S.ansicht = name;
+  alle(".reiter button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.ansicht === name)));
+  ["start", "karten", "quiz", "rechnen", "pruefung", "tabellen"].forEach(n => { $("#v-" + n).hidden = n !== name; });
+  zeichne();
+  window.scrollTo(0, 0);
+}
+
+function zeichne() {
+  kopfZeichnen();
+  if (S.ansicht === "start") rStart();
+  if (S.ansicht === "karten") rKarten();
+  if (S.ansicht === "quiz") rQuiz();
+  if (S.ansicht === "rechnen") rRechnen();
+  if (S.ansicht === "pruefung") rPruefung();
+  if (S.ansicht === "tabellen") rTabellen();
+}
+
+function kopfZeichnen() {
+  const t = tageBisPruefung();
+  const n = $("#frist-anzeige");
+  if (t === null) { n.innerHTML = "<b>—</b> <span>kein Termin gesetzt</span>"; return; }
+  if (t > 0) n.innerHTML = "<b>" + t + "</b> <span>Tage bis zur Prüfung</span>";
+  else if (t === 0) n.innerHTML = "<b>heute</b> <span>Prüfungstag</span>";
+  else n.innerHTML = "<b>" + Math.abs(t) + "</b> <span>Tage nach dem Termin</span>";
+}
+
+/* ===================== Start ===================== */
+function rStart() {
+  const faellig = faelligeKarten("alle").length;
+  const zielHeute = F.heute.datum === heuteStr() ? F.heute.karten : 0;
+  const quizGesehen = Object.keys(F.fragen).length;
+  const quizSicher = Object.keys(F.fragen).filter(k => F.fragen[k].lr === true).length;
+
+  let html = "";
+
+  html += '<div class="karte"><div class="karte-leib stapel">' +
+    '<div class="gitter drei">' +
+      kennzahl(faellig, "Karten fällig") +
+      kennzahl(zielHeute + " / " + F.tagesziel, "heute gelernt") +
+      kennzahl(F.serie || 0, "Tage in Folge") +
+      kennzahl(quizGesehen ? Math.round(quizSicher / Math.max(1, quizGesehen) * 100) + " %" : "–", "Quizfragen sicher") +
+    '</div>' +
+    '<div class="reihe">' +
+      '<button class="knopf" data-los="karten">Fällige Karten lernen</button>' +
+      '<button class="knopf leise" data-los="quiz">Quiz starten</button>' +
+      '<button class="knopf leise" data-los="pruefung">Prüfung simulieren</button>' +
+    '</div>' +
+    '<div class="frist-feld">' +
+      '<label class="feld" style="max-width:200px"><span>Prüfungstermin</span><input type="date" id="termin-feld" value="' + esc(F.termin || "") + '"></label>' +
+      '<label class="feld" style="max-width:150px"><span>Tagesziel (Karten)</span><input type="number" id="ziel-feld" min="5" max="200" step="5" value="' + (F.tagesziel || 20) + '"></label>' +
+    '</div>' +
+    '<p class="hinweis" id="sync-hinweis">Fortschritt wird nur in diesem Browser gespeichert.</p>' +
+  '</div></div>';
+
+  html += '<div class="karte"><div class="karte-kopf"><h3>Lernstand nach Prüfungsbereich</h3><span class="chip">je 25 % der Gesamtnote</span></div>';
+  BEREICHE.forEach(b => {
+    if (b.id === "fg") {
+      html += '<div class="bereich-zeile"><div class="bereich-kopf"><h4>' + esc(b.name) + '</h4><span class="chip">mündlich, max. 30 Min.</span></div>' +
+        '<div class="bereich-zahlen"><span>Vorbereitung über den Leitfaden im Bereich „Prüfung“</span></div></div>';
+      return;
+    }
+    const st = bereichsStand(b.id);
+    html += '<div class="bereich-zeile">' +
+      '<div class="bereich-kopf"><h4>' + esc(b.name) + '</h4>' +
+      (b.sperr ? '<span class="chip achtung">Sperrfach</span>' : "") +
+      '<span class="chip">' + b.min + ' Min.</span></div>' +
+      '<div class="balken"><i class="' + (st.prozent >= 70 ? "gut" : "") + '" style="width:' + Math.max(2, st.prozent) + '%"></i></div>' +
+      '<div class="bereich-zahlen">' +
+        '<span>' + st.prozent + ' % gesichert</span>' +
+        '<span>' + st.kartenSicher + '/' + st.karten + ' Karten</span>' +
+        '<span>' + st.fragenSicher + '/' + st.fragen + ' Aufgaben</span>' +
+        '<span>' + st.faellig + ' fällig</span>' +
+      '</div></div>';
+  });
+  html += '</div>';
+
+  html += '<div class="karte"><div class="karte-kopf"><h3>Aufbau der Abschlussprüfung</h3></div><div class="tabelle-rahmen"><table><thead><tr>' +
+    '<th>Prüfungsbereich</th><th>Art</th><th class="num">Dauer</th><th class="num">Gewicht</th></tr></thead><tbody>';
+  BEREICHE.forEach(b => {
+    html += '<tr><td>' + esc(b.name) + (b.sperr ? ' <span class="chip achtung">Sperrfach</span>' : "") + '</td><td>' + b.art + '</td>' +
+      '<td class="num">' + b.min + ' Min.</td><td class="num">' + b.gewicht + ' %</td></tr>';
+  });
+  html += '</tbody></table></div><div class="karte-leib"><p class="hinweis">Bestanden ist die Prüfung, wenn das Gesamtergebnis und mindestens drei Prüfungsbereiche ausreichend sind – darunter zwingend „Leistungserstellung in Spedition und Logistik“. Deshalb ist dieser Bereich hier als Sperrfach markiert.</p></div></div>';
+
+  html += '<div class="karte"><div class="karte-leib"><p class="hinweis">Begleit-App zu „Prüfungswissen KOMPAKT – Kaufmann/Kauffrau für Spedition und Logistikdienstleistung“ (Oppenberg/Schimpf, Westermann). Fragen, Lernkarten und Tabellen sind eigenständig formuliert und folgen den vier Prüfungsbereichen der IHK-Abschlussprüfung; Beträge und Beitragssätze sind mit Stand 2026 angegeben und vor der Prüfung gegen die aktuellen Werte zu prüfen.</p></div></div>';
+
+  $("#v-start").innerHTML = html;
+
+  alle("[data-los]", $("#v-start")).forEach(b => b.addEventListener("click", () => {
+    const z = b.dataset.los;
+    if (z === "karten") { S.lern.stapel = []; }
+    if (z === "quiz") { S.quiz.liste = []; }
+    wechsle(z);
+  }));
+  $("#termin-feld").addEventListener("change", e => { F.termin = e.target.value || null; sichern(); kopfZeichnen(); });
+  $("#ziel-feld").addEventListener("change", e => {
+    const v = parseInt(e.target.value, 10);
+    F.tagesziel = isFinite(v) && v > 0 ? v : 20; sichern(); rStart();
+  });
+  syncHinweis(!!dbRef);
+}
+
+function kennzahl(wert, bezeichnung) {
+  return '<div class="kennzahl"><b class="zahl">' + esc(String(wert)) + "</b><span>" + esc(bezeichnung) + "</span></div>";
+}
+
+function themenAuswahl(id, wert, bereichFilter) {
+  let o = '<option value="alle">Alle Themen</option>';
+  BEREICHE.filter(b => b.id !== "fg").forEach(b => {
+    const ts = THEMEN.filter(t => t.b === b.id && (!bereichFilter || bereichFilter === b.id));
+    if (!ts.length) return;
+    o += '<optgroup label="' + esc(b.kurz) + '">';
+    ts.forEach(t => { o += '<option value="' + t.id + '"' + (t.id === wert ? " selected" : "") + ">" + esc(t.name) + "</option>"; });
+    o += "</optgroup>";
+  });
+  return '<label class="feld" style="max-width:330px"><span>Thema</span><select id="' + id + '">' + o + "</select></label>";
+}
+
+/* ===================== Lernkarten ===================== */
+function rKarten() {
+  if (!S.lern.stapel.length) {
+    const f = faelligeKarten(S.lern.thema);
+    S.lern.stapel = f.length ? mische(f) : mische(KARTEN.filter(k => S.lern.thema === "alle" || k.t === S.lern.thema));
+    S.lern.aufgedeckt = false;
+  }
+  const karte = S.lern.stapel[0];
+  const offen = faelligeKarten(S.lern.thema).length;
+  let html = '<div class="karte"><div class="karte-leib stapel">' +
+    '<div class="reihe">' + themenAuswahl("karten-thema", S.lern.thema) +
+    '<div class="kennzahl" style="margin-left:auto"><b class="zahl">' + offen + '</b><span>fällig</span></div></div></div></div>';
+
+  if (!karte) {
+    html += '<div class="karte"><div class="karte-leib"><p>Für dieses Thema sind keine Karten hinterlegt.</p></div></div>';
+    $("#v-karten").innerHTML = html;
+    $("#karten-thema").addEventListener("change", e => { S.lern.thema = e.target.value; S.lern.stapel = []; rKarten(); });
+    return;
+  }
+
+  const stand = F.karten[karte.id];
+  const box = stand ? stand.box : 1;
+  html += '<div class="karte lernkarte" id="lern-karte" tabindex="0" role="button" aria-label="Karte aufdecken">' +
+    '<div class="reihe" style="justify-content:center"><span class="chip signal">' + esc(thema(karte.t).name) + '</span><span class="chip">Box ' + box + ' von 5</span></div>' +
+    '<div class="vorn">' + esc(karte.v) + "</div>" +
+    (S.lern.aufgedeckt ? '<div class="hinten">' + esc(karte.h) + "</div>" : '<div class="tipp">Tippen oder Leertaste zum Aufdecken</div>') +
+    "</div>";
+
+  if (S.lern.aufgedeckt) {
+    html += '<div class="kartenleiste">' +
+      '<button class="knopf leise" data-k="nochmal">Nochmal üben</button>' +
+      '<button class="knopf" data-k="gewusst">Gewusst</button>' +
+      '</div><p class="hinweis" style="text-align:center">„Gewusst“ schiebt die Karte eine Box weiter: Wiederholung nach 1, 3, 7 und 16 Tagen.</p>';
+  }
+  $("#v-karten").innerHTML = html;
+
+  $("#karten-thema").addEventListener("change", e => { S.lern.thema = e.target.value; S.lern.stapel = []; rKarten(); });
+  const kn = $("#lern-karte");
+  kn.addEventListener("click", () => { if (!S.lern.aufgedeckt) { S.lern.aufgedeckt = true; rKarten(); } });
+  alle("[data-k]", $("#v-karten")).forEach(b => b.addEventListener("click", () => {
+    karteBewerten(karte.id, b.dataset.k === "gewusst");
+    S.lern.stapel.shift();
+    if (b.dataset.k === "nochmal") S.lern.stapel.push(karte);
+    S.lern.aufgedeckt = false;
+    rKarten();
+  }));
+}
+
+/* ===================== Quiz ===================== */
+function quizPool(themaId) {
+  return FRAGEN.filter(q => themaId === "alle" || q.t === themaId);
+}
+function quizStart() {
+  const pool = quizPool(S.quiz.thema);
+  const unsicher = pool.filter(q => (F.fragen[q.id] || {}).lr !== true);
+  const basis = unsicher.length >= S.quiz.laenge ? unsicher : unsicher.concat(mische(pool.filter(q => (F.fragen[q.id] || {}).lr === true)));
+  S.quiz.liste = mische(basis).slice(0, Math.min(S.quiz.laenge, pool.length)).map(mischOptionen);
+  S.quiz.idx = 0; S.quiz.gewaehlt = null; S.quiz.richtig = 0; S.quiz.fertig = false;
+}
+function rQuiz() {
+  if (!S.quiz.liste.length) quizStart();
+  if (!S.quiz.liste.length) {
+    $("#v-quiz").innerHTML = '<div class="karte"><div class="karte-leib"><p>Fuer dieses Thema sind keine Fragen hinterlegt.</p></div></div>';
+    return;
+  }
+  let html = '<div class="karte"><div class="karte-leib reihe">' + themenAuswahl("quiz-thema", S.quiz.thema) +
+    '<label class="feld" style="max-width:120px"><span>Fragen</span><select id="quiz-laenge">' +
+    [5, 10, 20, 30].map(n => '<option value="' + n + '"' + (n === S.quiz.laenge ? " selected" : "") + ">" + n + "</option>").join("") +
+    '</select></label><button class="knopf leise klein" id="quiz-neu" style="margin-top:auto">Neuer Satz</button></div></div>';
+
+  if (S.quiz.fertig) {
+    const q = S.quiz.liste.length;
+    const p = Math.round(S.quiz.richtig / Math.max(1, q) * 100);
+    html += '<div class="karte"><div class="karte-leib stapel"><h2>' + S.quiz.richtig + " von " + q + " richtig</h2>" +
+      '<div class="balken"><i class="' + (p >= 50 ? "gut" : "") + '" style="width:' + Math.max(2, p) + '%"></i></div>' +
+      "<p>" + p + " % – " + esc(noteZuPunkten(p).text) + '</p>' +
+      '<div class="reihe"><button class="knopf" id="quiz-wieder">Nächster Satz</button>' +
+      '<button class="knopf leise" data-zu="karten">Zu den Karten</button></div></div></div>';
+    $("#v-quiz").innerHTML = html;
+    bindQuizKopf();
+    $("#quiz-wieder").addEventListener("click", () => { quizStart(); rQuiz(); });
+    $('[data-zu="karten"]').addEventListener("click", () => wechsle("karten"));
+    return;
+  }
+
+  const frage = S.quiz.liste[S.quiz.idx];
+  const gewaehlt = S.quiz.gewaehlt;
+  html += '<div class="karte"><div class="karte-kopf">' +
+    '<span class="feldname">Frage ' + (S.quiz.idx + 1) + " von " + S.quiz.liste.length + '</span>' +
+    '<span class="chip signal">' + esc(thema(frage.t).name) + '</span>' +
+    '<span class="chip" style="margin-left:auto">' + esc(bereich(bereichVon(frage.t)).kurz) + '</span></div>' +
+    '<div class="karte-leib stapel"><h3>' + esc(frage.q) + "</h3><div class=\"stapel\" style=\"gap:8px\">";
+  frage.o.forEach((o, i) => {
+    let stand = "";
+    if (gewaehlt !== null) {
+      if (i === frage.a) stand = ' data-stand="richtig"';
+      else if (i === gewaehlt) stand = ' data-stand="falsch"';
+    }
+    html += '<button class="option" data-opt="' + i + '"' + stand + (gewaehlt !== null ? " disabled" : "") + '>' +
+      '<span class="marke-opt">' + "ABCD"[i] + "</span><span>" + esc(o) + "</span></button>";
+  });
+  html += "</div>";
+  if (gewaehlt !== null) {
+    html += '<div class="loesungsblock"><b>' + (gewaehlt === frage.a ? "Richtig" : "Richtig ist " + "ABCD"[frage.a]) + "</b>" + esc(frage.e) + "</div>" +
+      '<div class="reihe"><button class="knopf" id="quiz-weiter">' + (S.quiz.idx + 1 < S.quiz.liste.length ? "Weiter" : "Ergebnis") + "</button></div>";
+  } else {
+    html += '<p class="hinweis">Antwort mit Klick oder Taste 1–4 wählen.</p>';
+  }
+  html += "</div></div>";
+  $("#v-quiz").innerHTML = html;
+  bindQuizKopf();
+  alle("[data-opt]", $("#v-quiz")).forEach(b => b.addEventListener("click", () => quizAntwort(parseInt(b.dataset.opt, 10))));
+  const w = $("#quiz-weiter");
+  if (w) w.addEventListener("click", quizWeiter);
+}
+function bindQuizKopf() {
+  $("#quiz-thema").addEventListener("change", e => { S.quiz.thema = e.target.value; quizStart(); rQuiz(); });
+  $("#quiz-laenge").addEventListener("change", e => { S.quiz.laenge = parseInt(e.target.value, 10); quizStart(); rQuiz(); });
+  $("#quiz-neu").addEventListener("click", () => { quizStart(); rQuiz(); });
+}
+function quizAntwort(i) {
+  if (S.quiz.gewaehlt !== null) return;
+  const frage = S.quiz.liste[S.quiz.idx];
+  S.quiz.gewaehlt = i;
+  const richtig = i === frage.a;
+  if (richtig) S.quiz.richtig += 1;
+  frageBewerten(frage.id, richtig);
+  rQuiz();
+}
+function quizWeiter() {
+  if (S.quiz.idx + 1 < S.quiz.liste.length) { S.quiz.idx += 1; S.quiz.gewaehlt = null; }
+  else S.quiz.fertig = true;
+  rQuiz();
+}
+
+/* ===================== Rechnen ===================== */
+function rRechnen() {
+  let html = '<div class="karte"><div class="karte-leib reihe">' +
+    '<button class="knopf' + (S.rechnen.reiter === "aufgaben" ? "" : " leise") + ' klein" data-rr="aufgaben">Aufgaben</button>' +
+    '<button class="knopf' + (S.rechnen.reiter === "rechner" ? "" : " leise") + ' klein" data-rr="rechner">Rechner</button>' +
+    '</div></div>';
+  html += S.rechnen.reiter === "aufgaben" ? aufgabenHtml() : rechnerHtml();
+  $("#v-rechnen").innerHTML = html;
+  alle("[data-rr]", $("#v-rechnen")).forEach(b => b.addEventListener("click", () => { S.rechnen.reiter = b.dataset.rr; rRechnen(); }));
+  if (S.rechnen.reiter === "aufgaben") bindAufgaben(); else bindRechner();
+}
+
+function aufgabenHtml() {
+  if (!S.rechnen.liste.length) {
+    const offen = RECHNEN.filter(r => (F.fragen[r.id] || {}).lr !== true);
+    S.rechnen.liste = mische(offen.length ? offen : RECHNEN);
+    S.rechnen.idx = 0; S.rechnen.geprueft = false;
+  }
+  const a = S.rechnen.liste[S.rechnen.idx % S.rechnen.liste.length];
+  const geloest = RECHNEN.filter(r => (F.fragen[r.id] || {}).lr === true).length;
+  let html = '<div class="karte"><div class="karte-kopf">' +
+    '<span class="feldname">Rechenaufgabe</span><span class="chip signal">' + esc(thema(a.t).name) + '</span>' +
+    '<span class="chip" style="margin-left:auto">' + geloest + " von " + RECHNEN.length + " gelöst</span></div>" +
+    '<div class="karte-leib stapel"><h3>' + esc(a.q) + "</h3>" +
+    '<div class="reihe"><label class="feld" style="max-width:220px"><span>Ergebnis in ' + esc(a.eh) + '</span>' +
+    '<input type="text" inputmode="decimal" id="rechen-eingabe" placeholder="z. B. 1234,56"' + (S.rechnen.geprueft ? " disabled" : "") + '></label>' +
+    (S.rechnen.geprueft ? "" : '<button class="knopf" id="rechen-pruefen" style="margin-top:auto">Prüfen</button>') + "</div>";
+  if (S.rechnen.geprueft) {
+    html += '<div class="loesungsblock"><b>' + (S.rechnen.korrekt ? "Richtig" : "Noch nicht richtig") + "</b>" +
+      "Ergebnis: <span class=\"zahl\">" + zahl(a.a, a.a % 1 === 0 ? 0 : 2) + " " + esc(a.eh) + "</span><br>" + esc(a.w) + "</div>" +
+      '<div class="reihe"><button class="knopf" id="rechen-weiter">Nächste Aufgabe</button></div>';
+  } else {
+    html += '<p class="hinweis">Komma oder Punkt sind beide zulässig. Zwischenschritte wie gewohnt auf Papier – hier zählt das Endergebnis.</p>';
+  }
+  html += "</div></div>";
+  return html;
+}
+function bindAufgaben() {
+  const a = S.rechnen.liste[S.rechnen.idx % S.rechnen.liste.length];
+  const feld = $("#rechen-eingabe");
+  const pruef = $("#rechen-pruefen");
+  if (pruef) {
+    const los = () => {
+      const v = zuZahl(feld.value);
+      if (!isFinite(v)) { feld.focus(); return; }
+      S.rechnen.korrekt = Math.abs(v - a.a) <= (a.tol || 0.01);
+      S.rechnen.geprueft = true;
+      frageBewerten(a.id, S.rechnen.korrekt);
+      rRechnen();
+    };
+    pruef.addEventListener("click", los);
+    feld.addEventListener("keydown", e => { if (e.key === "Enter") los(); });
+    feld.focus();
+  }
+  const w = $("#rechen-weiter");
+  if (w) w.addEventListener("click", () => {
+    S.rechnen.idx += 1; S.rechnen.geprueft = false;
+    if (S.rechnen.idx >= S.rechnen.liste.length) S.rechnen.liste = [];
+    rRechnen();
+  });
+}
+
+/* ---- Rechner ---- */
+const RECHNER = [
+  { id:"rc_strasse", titel:"Frachtpflichtiges Gewicht – Straße",
+    felder:[["anz","Packstücke","6",1],["l","Länge (cm)","120",1],["b","Breite (cm)","80",1],["h","Höhe (cm)","160",1],["kg","Gewicht je Stück (kg)","420",1],["f","Umrechnung (kg je m³)","333",1]],
+    rechne:v => {
+      const vol = v.anz * (v.l / 100) * (v.b / 100) * (v.h / 100);
+      const volKg = vol * v.f, tat = v.anz * v.kg;
+      return [["Volumen", zahl(vol, 3) + " m³"], ["Volumengewicht", zahl(volKg, 0) + " kg"], ["Tatsächliches Gewicht", zahl(tat, 0) + " kg"],
+              ["Frachtpflichtig", zahl(Math.max(volKg, tat), 0) + " kg"]];
+    } },
+  { id:"rc_ldm", titel:"Lademeter und Nutzlast",
+    felder:[["plaetze","Palettenplätze","8",1],["ldm","Lademeter je Platz","0,4",1],["kgldm","kg je Lademeter","1850",1],["tat","Tatsächliches Gewicht (kg)","4000",1],["zgg","zGG Fahrzeug (t)","40",1],["leer","Leergewicht (t)","15,2",1]],
+    rechne:v => {
+      const ldm = v.plaetze * v.ldm, frachtKg = ldm * v.kgldm;
+      return [["Lademeter", zahl(ldm, 2) + " ldm"], ["Gewicht aus Lademetern", zahl(frachtKg, 0) + " kg"],
+              ["Frachtpflichtig", zahl(Math.max(frachtKg, v.tat), 0) + " kg"], ["Nutzlast Fahrzeug", zahl(v.zgg - v.leer, 1) + " t"]];
+    } },
+  { id:"rc_luft", titel:"Luftfracht – Chargeable Weight und Rate",
+    felder:[["l","Länge (cm)","110",1],["b","Breite (cm)","80",1],["h","Höhe (cm)","90",1],["kg","Tatsächliches Gewicht (kg)","95",1],["rate","Rate (EUR/kg)","2,80",1],["stufe","Nächste Gewichtsstufe (kg)","0",1],["stufenrate","Rate der Stufe (EUR/kg)","0",1],["min","Mindestfracht (EUR)","150",1]],
+    rechne:v => {
+      const volKg = v.l * v.b * v.h / 6000, cw = Math.max(volKg, v.kg);
+      const fracht = Math.max(cw * v.rate, v.min);
+      const stufe = v.stufe > 0 && v.stufenrate > 0 ? v.stufe * v.stufenrate : null;
+      const aus = [["Volumengewicht", zahl(volKg, 1) + " kg"], ["Chargeable Weight", zahl(cw, 1) + " kg"], ["Fracht", zahl(fracht, 2) + " EUR"]];
+      if (stufe !== null) aus.push(["Höhere Gewichtsstufe", zahl(stufe, 2) + " EUR"], ["Günstiger", stufe < fracht ? "höhere Stufe: " + zahl(stufe, 2) + " EUR" : "tatsächliches Gewicht: " + zahl(fracht, 2) + " EUR"]);
+      return aus;
+    } },
+  { id:"rc_see", titel:"Seefracht W/M",
+    felder:[["anz","Packstücke","12",1],["vol","Volumen je Stück (m³)","0,9",1],["kg","Gewicht je Stück (kg)","600",1],["rate","Rate je Frachteinheit","95",1],["thc","Zuschläge gesamt (THC, BAF …)","0",1]],
+    rechne:v => {
+      const vol = v.anz * v.vol, t = v.anz * v.kg / 1000, fe = Math.max(vol, t);
+      return [["Volumen", zahl(vol, 2) + " m³"], ["Gewicht", zahl(t, 3) + " t"], ["Frachteinheiten (W/M)", zahl(fe, 2)],
+              ["Fracht", zahl(fe * v.rate + v.thc, 2)]];
+    } },
+  { id:"rc_haft", titel:"Haftungshöchstbetrag",
+    felder:[["kg","Gewicht der Sendung (kg)","850",1],["szr","Kurs 1 SZR in EUR","1,18",1],["stueck","Packstücke (nur Seefracht)","0",1],["wert","Warenwert (EUR)","25000",1]],
+    rechne:v => {
+      const z = (szrKg) => zahl(v.kg * szrKg * v.szr, 2) + " EUR";
+      const see = Math.max(v.kg * 2, (v.stueck || 0) * 666.67) * v.szr;
+      const cmr = v.kg * 8.33 * v.szr;
+      return [["Straße (CMR/HGB, 8,33 SZR/kg)", z(8.33)], ["Schiene (CIM, 17 SZR/kg)", z(17)],
+              ["Luftfracht (MÜ, 22 SZR/kg)", z(22)], ["Seefracht (2 SZR/kg bzw. 666,67 je Stück)", zahl(see, 2) + " EUR"],
+              ["Deckungslücke bei Straßentransport", zahl(Math.max(0, v.wert - cmr), 2) + " EUR"]];
+    } },
+  { id:"rc_lager", titel:"Lagerkennzahlen",
+    felder:[["ab","Anfangsbestand (EUR)","180000",1],["eb","Endbestand (EUR)","120000",1],["abgang","Jahresabgang (EUR)","1200000",1],["zins","Jahreszinssatz (%)","6",1]],
+    rechne:v => {
+      const d = (v.ab + v.eb) / 2, uh = d ? v.abgang / d : 0, dauer = uh ? 360 / uh : 0, lz = v.zins * dauer / 360;
+      return [["⌀ Lagerbestand", zahl(d, 2) + " EUR"], ["Umschlagshäufigkeit", zahl(uh, 2)],
+              ["⌀ Lagerdauer", zahl(dauer, 1) + " Tage"], ["Lagerzinssatz", zahl(lz, 2) + " %"], ["Lagerzinsen", zahl(d * lz / 100, 2) + " EUR"]];
+    } },
+  { id:"rc_zoll", titel:"Einfuhrabgaben",
+    felder:[["wert","Warenwert (EUR)","24000",1],["frachtEU","Fracht bis EU-Grenze (EUR)","1500",1],["zollsatz","Zollsatz (%)","4,7",1],["frachtIn","Fracht im Inland (EUR)","300",1],["ust","Steuersatz EUSt (%)","19",1]],
+    rechne:v => {
+      const zw = v.wert + v.frachtEU, zoll = zw * v.zollsatz / 100, bg = zw + zoll + v.frachtIn, eust = bg * v.ust / 100;
+      return [["Zollwert", zahl(zw, 2) + " EUR"], ["Zoll", zahl(zoll, 2) + " EUR"], ["Bemessungsgrundlage EUSt", zahl(bg, 2) + " EUR"],
+              ["Einfuhrumsatzsteuer", zahl(eust, 2) + " EUR"], ["Abgaben gesamt", zahl(zoll + eust, 2) + " EUR"]];
+    } },
+  { id:"rc_db", titel:"Deckungsbeitrag und Break-even",
+    felder:[["erloes","Erlös je Sendung (EUR)","420",1],["var","Variable Kosten je Sendung (EUR)","265",1],["fix","Fixkosten je Periode (EUR)","46500",1],["menge","Geplante Sendungen","350",1]],
+    rechne:v => {
+      const db = v.erloes - v.var, be = db ? v.fix / db : 0;
+      return [["Deckungsbeitrag je Sendung", zahl(db, 2) + " EUR"], ["DB-Quote", zahl(v.erloes ? db / v.erloes * 100 : 0, 1) + " %"],
+              ["Break-even-Menge", zahl(be, 0) + " Sendungen"], ["Ergebnis bei Planmenge", zahl(db * v.menge - v.fix, 2) + " EUR"]];
+    } },
+  { id:"rc_skonto", titel:"Skonto und Lieferantenkredit",
+    felder:[["betrag","Rechnungsbetrag (EUR)","12500",1],["skonto","Skonto (%)","2",1],["ziel","Zahlungsziel (Tage)","30",1],["frist","Skontofrist (Tage)","10",1]],
+    rechne:v => {
+      const abzug = v.betrag * v.skonto / 100, tage = v.ziel - v.frist;
+      return [["Skontobetrag", zahl(abzug, 2) + " EUR"], ["Zahlbetrag bei Skonto", zahl(v.betrag - abzug, 2) + " EUR"],
+              ["Kreditdauer", zahl(tage, 0) + " Tage"], ["Jahreszins des Lieferantenkredits", zahl(tage > 0 ? v.skonto * 360 / tage : 0, 2) + " %"]];
+    } }
+];
+
+function rechnerHtml() {
+  let html = "";
+  RECHNER.forEach(r => {
+    html += '<div class="karte" data-rechner="' + r.id + '"><div class="karte-kopf"><h3>' + esc(r.titel) + '</h3></div><div class="karte-leib stapel">' +
+      '<div class="gitter drei">' +
+      r.felder.map(f => '<label class="feld"><span>' + esc(f[1]) + '</span><input type="text" inputmode="decimal" data-f="' + f[0] + '" value="' + esc(f[2]) + '"></label>').join("") +
+      '</div><div class="tabelle-rahmen"><table class="ergebnis"><tbody></tbody></table></div></div></div>';
+  });
+  html += '<div class="karte"><div class="karte-leib"><p class="hinweis">Alle Rechner arbeiten mit 360 Zinstagen und den im Lehrbuch üblichen Umrechnungsschlüsseln. Felder mit 0 schalten die jeweilige Zusatzrechnung ab.</p></div></div>';
+  return html;
+}
+function bindRechner() {
+  RECHNER.forEach(r => {
+    const wurzel = $('[data-rechner="' + r.id + '"]');
+    if (!wurzel) return;
+    const rechne = () => {
+      const v = {};
+      alle("[data-f]", wurzel).forEach(i => {
+        const n = zuZahl(i.value);
+        v[i.dataset.f] = isFinite(n) ? n : 0;
+      });
+      const zeilen = r.rechne(v);
+      $("tbody", wurzel).innerHTML = zeilen.map((z, i) =>
+        "<tr><td>" + esc(z[0]) + '</td><td class="num"' + (i === zeilen.length - 1 ? ' style="font-weight:600"' : "") + ">" + esc(z[1]) + "</td></tr>").join("");
+    };
+    alle("[data-f]", wurzel).forEach(i => i.addEventListener("input", rechne));
+    rechne();
+  });
+}
+
+/* ===================== Prüfungssimulation ===================== */
+const PRUEFUNGSSATZ = { lel: { mc: 26, num: 4 }, ksk: { mc: 12, num: 6 }, wiso: { mc: 12, num: 0 } };
+
+function noteZuPunkten(p) {
+  if (p >= 92) return { note: 1, text: "sehr gut" };
+  if (p >= 81) return { note: 2, text: "gut" };
+  if (p >= 67) return { note: 3, text: "befriedigend" };
+  if (p >= 50) return { note: 4, text: "ausreichend" };
+  if (p >= 30) return { note: 5, text: "mangelhaft" };
+  return { note: 6, text: "ungenügend" };
+}
+
+function pruefungStarten(bid) {
+  const themen = THEMEN.filter(t => t.b === bid).map(t => t.id);
+  const satz = PRUEFUNGSSATZ[bid];
+  const mc = mische(FRAGEN.filter(q => themen.indexOf(q.t) >= 0)).slice(0, satz.mc).map(q => ({ art: "mc", d: mischOptionen(q) }));
+  const num = mische(RECHNEN.filter(r => themen.indexOf(r.t) >= 0)).slice(0, satz.num).map(r => ({ art: "num", d: r }));
+  const teile = mische(mc.concat(num));
+  S.pruefung = { aktiv: true, bereich: bid, teile: teile, antworten: teile.map(() => null), idx: 0,
+                 endzeit: Date.now() + bereich(bid).min * 60000, tick: null, ergebnis: null };
+  S.pruefung.tick = setInterval(() => {
+    if (!S.pruefung.aktiv) return;
+    const u = $("#pruef-uhr");
+    const rest = S.pruefung.endzeit - Date.now();
+    if (rest <= 0) { pruefungAuswerten(); return; }
+    if (u) {
+      const m = Math.floor(rest / 60000), s = Math.floor(rest % 60000 / 1000);
+      u.textContent = m + ":" + String(s).padStart(2, "0");
+      u.classList.toggle("knapp", rest < 300000);
+    }
+  }, 1000);
+  rPruefung();
+}
+
+function pruefungAuswerten() {
+  if (S.pruefung.tick) { clearInterval(S.pruefung.tick); S.pruefung.tick = null; }
+  let richtig = 0;
+  const nachThema = {};
+  S.pruefung.teile.forEach((t, i) => {
+    const a = S.pruefung.antworten[i];
+    let ok = false;
+    if (t.art === "mc") ok = a === t.d.a;
+    else ok = a !== null && isFinite(a) && Math.abs(a - t.d.a) <= (t.d.tol || 0.01);
+    if (ok) richtig += 1;
+    frageBewerten(t.d.id, ok);
+    const k = t.d.t;
+    nachThema[k] = nachThema[k] || { r: 0, n: 0 };
+    nachThema[k].n += 1; if (ok) nachThema[k].r += 1;
+  });
+  const p = Math.round(richtig / Math.max(1, S.pruefung.teile.length) * 100);
+  const n = noteZuPunkten(p);
+  S.pruefung.aktiv = false;
+  S.pruefung.ergebnis = { richtig: richtig, gesamt: S.pruefung.teile.length, punkte: p, note: n, nachThema: nachThema };
+  F.pruefungen = (F.pruefungen || []).concat([{ bereich: S.pruefung.bereich, datum: heuteStr(), punkte: p, note: n.note }]).slice(-20);
+  sichern();
+  rPruefung();
+}
+
+function rPruefung() {
+  const w = $("#v-pruefung");
+  if (S.pruefung.ergebnis) { w.innerHTML = pruefErgebnisHtml(); bindPruefErgebnis(); return; }
+  if (S.pruefung.aktiv) { w.innerHTML = pruefLaufHtml(); bindPruefLauf(); return; }
+  w.innerHTML = pruefStartHtml(); bindPruefStart();
+}
+
+function pruefStartHtml() {
+  let html = '<div class="karte"><div class="karte-kopf"><h3>Prüfung unter Zeitdruck simulieren</h3></div><div class="karte-leib stapel">' +
+    '<p>Jeder Durchlauf zieht einen neuen Aufgabensatz aus den Themen des Prüfungsbereichs und läuft mit der echten Prüfungszeit.</p><div class="gitter zwei">';
+  ["lel", "ksk", "wiso"].forEach(id => {
+    const b = bereich(id), satz = PRUEFUNGSSATZ[id];
+    html += '<div class="karte" style="box-shadow:none"><div class="karte-leib stapel" style="gap:10px">' +
+      '<h4>' + esc(b.name) + "</h4>" +
+      '<div class="bereich-zahlen"><span>' + b.min + ' Minuten</span><span>' + (satz.mc + satz.num) + ' Aufgaben</span>' + (b.sperr ? '<span>Sperrfach</span>' : "") + '</div>' +
+      '<button class="knopf klein" data-start="' + id + '">Starten</button></div></div>';
+  });
+  html += "</div></div></div>";
+
+  const verlauf = (F.pruefungen || []).slice().reverse();
+  if (verlauf.length) {
+    html += '<div class="karte"><div class="karte-kopf"><h3>Bisherige Durchläufe</h3></div><div class="tabelle-rahmen"><table><thead><tr>' +
+      "<th>Datum</th><th>Bereich</th><th class=\"num\">Punkte</th><th class=\"num\">Note</th></tr></thead><tbody>" +
+      verlauf.map(v => '<tr><td class="zahl">' + esc(v.datum) + "</td><td>" + esc(bereich(v.bereich) ? bereich(v.bereich).kurz : v.bereich) +
+        '</td><td class="num">' + v.punkte + "</td><td class=\"num\">" + v.note + "</td></tr>").join("") +
+      "</tbody></table></div></div>";
+  }
+
+  html += '<div class="karte"><div class="karte-kopf"><h3>Fallbezogenes Fachgespräch</h3><span class="chip">mündlich, max. 30 Min.</span></div><div class="karte-leib stapel">' +
+    "<ol style=\"margin:0;padding-left:20px\">" + FACHGESPRAECH.ablauf.map(a => "<li>" + esc(a) + "</li>").join("") + "</ol>" +
+    FACHGESPRAECH.raster.map(r => '<div><p class="feldname">' + esc(r.titel) + '</p><ul style="margin:4px 0 0;padding-left:20px">' +
+      r.punkte.map(p => "<li>" + esc(p) + "</li>").join("") + "</ul></div>").join("") +
+    '<div class="notiz">' + FACHGESPRAECH.tipps.map(t => esc(t)).join("<br>") + "</div></div></div>";
+  return html;
+}
+function bindPruefStart() {
+  alle("[data-start]", $("#v-pruefung")).forEach(b => b.addEventListener("click", () => pruefungStarten(b.dataset.start)));
+}
+
+function pruefLaufHtml() {
+  const t = S.pruefung.teile[S.pruefung.idx];
+  const a = S.pruefung.antworten[S.pruefung.idx];
+  const rest = Math.max(0, S.pruefung.endzeit - Date.now());
+  let html = '<div class="karte"><div class="karte-leib stapel">' +
+    '<div class="reihe"><span class="feldname">' + esc(bereich(S.pruefung.bereich).name) + "</span>" +
+    '<span class="uhr' + (rest < 300000 ? " knapp" : "") + '" id="pruef-uhr">' + Math.floor(rest / 60000) + ":" + String(Math.floor(rest % 60000 / 1000)).padStart(2, "0") + "</span>" +
+    '<button class="knopf leise klein" id="pruef-abgeben" style="margin-left:auto">Abgeben</button></div>' +
+    '<div class="fragenraster">' + S.pruefung.teile.map((x, i) =>
+      '<button data-sprung="' + i + '" data-beantwortet="' + (S.pruefung.antworten[i] !== null ? "ja" : "nein") + '"' +
+      (i === S.pruefung.idx ? ' aria-current="true"' : "") + ">" + (i + 1) + "</button>").join("") + "</div></div></div>";
+
+  html += '<div class="karte"><div class="karte-kopf"><span class="feldname">Aufgabe ' + (S.pruefung.idx + 1) + " von " + S.pruefung.teile.length + "</span>" +
+    '<span class="chip signal">' + esc(thema(t.d.t).name) + "</span>" +
+    (t.art === "num" ? '<span class="chip" style="margin-left:auto">Rechenaufgabe</span>' : "") + "</div>" +
+    '<div class="karte-leib stapel"><h3>' + esc(t.d.q) + "</h3>";
+  if (t.art === "mc") {
+    html += '<div class="stapel" style="gap:8px">' + t.d.o.map((o, i) =>
+      '<button class="option" data-popt="' + i + '"' + (a === i ? ' style="border-color:var(--signal);background:var(--signal-weich)"' : "") + '>' +
+      '<span class="marke-opt">' + "ABCD"[i] + "</span><span>" + esc(o) + "</span></button>").join("") + "</div>";
+  } else {
+    html += '<label class="feld" style="max-width:240px"><span>Ergebnis in ' + esc(t.d.eh) + '</span>' +
+      '<input type="text" inputmode="decimal" id="pruef-zahl" value="' + (a !== null && a !== undefined ? esc(String(a).replace(".", ",")) : "") + '"></label>';
+  }
+  html += '<div class="reihe">' +
+    '<button class="knopf leise" id="pruef-zurueck"' + (S.pruefung.idx === 0 ? " disabled" : "") + ">Zurück</button>" +
+    '<button class="knopf" id="pruef-vor">' + (S.pruefung.idx + 1 < S.pruefung.teile.length ? "Weiter" : "Zur Abgabe") + "</button></div>" +
+    '<p class="hinweis">Unbeantwortete Aufgaben zählen als falsch. Die Uhr läuft weiter, auch wenn du zwischen den Aufgaben springst.</p></div></div>';
+  return html;
+}
+function bindPruefLauf() {
+  const t = S.pruefung.teile[S.pruefung.idx];
+  const merkeZahl = () => {
+    const f = $("#pruef-zahl");
+    if (!f) return;
+    const n = zuZahl(f.value);
+    S.pruefung.antworten[S.pruefung.idx] = isFinite(n) ? n : null;
+  };
+  alle("[data-popt]", $("#v-pruefung")).forEach(b => b.addEventListener("click", () => {
+    S.pruefung.antworten[S.pruefung.idx] = parseInt(b.dataset.popt, 10);
+    if (S.pruefung.idx + 1 < S.pruefung.teile.length) S.pruefung.idx += 1;
+    rPruefung();
+  }));
+  const zf = $("#pruef-zahl");
+  if (zf) zf.addEventListener("input", merkeZahl);
+  alle("[data-sprung]", $("#v-pruefung")).forEach(b => b.addEventListener("click", () => {
+    if (t.art === "num") merkeZahl();
+    S.pruefung.idx = parseInt(b.dataset.sprung, 10); rPruefung();
+  }));
+  $("#pruef-vor").addEventListener("click", () => {
+    if (t.art === "num") merkeZahl();
+    if (S.pruefung.idx + 1 < S.pruefung.teile.length) { S.pruefung.idx += 1; rPruefung(); }
+    else pruefungAuswerten();
+  });
+  $("#pruef-zurueck").addEventListener("click", () => {
+    if (t.art === "num") merkeZahl();
+    if (S.pruefung.idx > 0) { S.pruefung.idx -= 1; rPruefung(); }
+  });
+  $("#pruef-abgeben").addEventListener("click", () => { if (t.art === "num") merkeZahl(); pruefungAuswerten(); });
+}
+
+function pruefErgebnisHtml() {
+  const e = S.pruefung.ergebnis;
+  const b = bereich(S.pruefung.bereich);
+  let html = '<div class="karte"><div class="karte-kopf"><h3>Ergebnis – ' + esc(b.name) + "</h3>" +
+    '<span class="chip ' + (e.punkte >= 50 ? "gut" : "schlecht") + '" style="margin-left:auto">' + (e.punkte >= 50 ? "ausreichend oder besser" : "nicht bestanden") + "</span></div>" +
+    '<div class="karte-leib stapel"><div class="gitter drei">' +
+    kennzahl(e.punkte, "Punkte von 100") + kennzahl(e.note.note, "Note") + kennzahl(e.richtig + " / " + e.gesamt, "richtig") +
+    '</div><div class="balken"><i class="' + (e.punkte >= 50 ? "gut" : "") + '" style="width:' + Math.max(2, e.punkte) + '%"></i></div>' +
+    "<p>" + esc(e.note.text) + (b.sperr ? " – dieser Bereich muss zum Bestehen ausreichend sein." : "") + "</p></div></div>";
+
+  const zeilen = Object.keys(e.nachThema).map(k => {
+    const v = e.nachThema[k], p = Math.round(v.r / v.n * 100);
+    return { name: thema(k) ? thema(k).name : k, r: v.r, n: v.n, p: p };
+  }).sort((a, c) => a.p - c.p);
+  html += '<div class="karte"><div class="karte-kopf"><h3>Nach Thema</h3><span class="chip">schwächste zuerst</span></div><div class="tabelle-rahmen"><table><thead><tr>' +
+    "<th>Thema</th><th class=\"num\">richtig</th><th class=\"num\">Quote</th></tr></thead><tbody>" +
+    zeilen.map(z => "<tr><td>" + esc(z.name) + '</td><td class="num">' + z.r + " / " + z.n + '</td><td class="num">' + z.p + " %</td></tr>").join("") +
+    "</tbody></table></div><div class=\"karte-leib reihe\">" +
+    '<button class="knopf" id="erg-neu">Neuer Durchlauf</button>' +
+    '<button class="knopf leise" id="erg-karten">Schwächstes Thema lernen</button></div></div>';
+  return html;
+}
+function bindPruefErgebnis() {
+  const schwach = Object.keys(S.pruefung.ergebnis.nachThema).sort((a, b) => {
+    const x = S.pruefung.ergebnis.nachThema[a], y = S.pruefung.ergebnis.nachThema[b];
+    return (x.r / x.n) - (y.r / y.n);
+  })[0];
+  $("#erg-neu").addEventListener("click", () => { S.pruefung = { aktiv: false, bereich: null, teile: [], antworten: [], idx: 0, endzeit: 0, tick: null, ergebnis: null }; rPruefung(); });
+  $("#erg-karten").addEventListener("click", () => {
+    S.lern.thema = schwach; S.lern.stapel = []; S.lern.aufgedeckt = false;
+    S.pruefung.ergebnis = null; wechsle("karten");
+  });
+}
+
+/* ===================== Tabellen ===================== */
+function rTabellen() {
+  let html = '<div class="karte"><div class="karte-leib"><p class="hinweis">Nachschlageteil für die Prüfung: Haftungsgrenzen, Incoterms, Umrechnungsschlüssel und Formeln auf einen Blick.</p></div></div>';
+  TABELLEN.forEach(t => {
+    html += '<div class="karte"><div class="karte-kopf"><h3>' + esc(t.titel) + '</h3></div><div class="tabelle-rahmen"><table><thead><tr>' +
+      t.kopf.map((k, i) => "<th" + (i > 0 && t.kopf.length > 2 ? "" : "") + ">" + esc(k) + "</th>").join("") + "</tr></thead><tbody>" +
+      t.zeilen.map(z => "<tr>" + z.map(c => "<td>" + esc(c) + "</td>").join("") + "</tr>").join("") +
+      "</tbody></table></div>" + (t.fuss ? '<div class="karte-leib"><p class="hinweis">' + esc(t.fuss) + "</p></div>" : "") + "</div>";
+  });
+  $("#v-tabellen").innerHTML = html;
+}
+
+/* ===================== Tastatur ===================== */
+document.addEventListener("keydown", e => {
+  const imFeld = ["INPUT", "SELECT", "TEXTAREA"].indexOf((e.target.tagName || "")) >= 0;
+  if (imFeld) return;
+  if (S.ansicht === "karten") {
+    if (e.code === "Space") { e.preventDefault(); if (!S.lern.aufgedeckt) { S.lern.aufgedeckt = true; rKarten(); } return; }
+    if (S.lern.aufgedeckt && (e.key === "1" || e.key === "2")) {
+      const k = S.lern.stapel[0];
+      if (k) { karteBewerten(k.id, e.key === "2"); S.lern.stapel.shift(); if (e.key === "1") S.lern.stapel.push(k); S.lern.aufgedeckt = false; rKarten(); }
+    }
+  }
+  if (S.ansicht === "quiz" && !S.quiz.fertig) {
+    if (["1", "2", "3", "4"].indexOf(e.key) >= 0 && S.quiz.gewaehlt === null) quizAntwort(parseInt(e.key, 10) - 1);
+    else if (e.key === "Enter" && S.quiz.gewaehlt !== null) quizWeiter();
+  }
+});
+
+/* ===================== Start ===================== */
+(function init() {
+  const gespeichert = lokalLesen();
+  if (gespeichert) F = Object.assign(leerFortschritt(), gespeichert);
+  alle(".reiter button").forEach(b => b.addEventListener("click", () => wechsle(b.dataset.ansicht)));
+  const start = () => { wechsle(S.ansicht || "start"); geraeteAbgleich(); };
+  const hot = window.claude && window.claude.hot;
+  if (hot && hot.snapshot) hot.snapshot(() => ({ ansicht: S.ansicht }));
+  if (hot && hot.ready) hot.ready(daten => { if (daten && daten.ansicht) S.ansicht = daten.ansicht; start(); });
+  else start();
+})();
+</script>
+<script>
+if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+  window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
+}
+</script>
+</body>
+</html>

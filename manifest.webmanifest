@@ -1,0 +1,33 @@
+{
+  "name": "Prüfungstrainer Spedition und Logistik",
+  "short_name": "Prüfung SpL",
+  "description": "Lernkarten, Quiz, Rechner und Prüfungssimulation für die IHK-Abschlussprüfung Kaufmann/-frau für Spedition und Logistikdienstleistung.",
+  "lang": "de",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#edf0f3",
+  "theme_color": "#0b4f9e",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
