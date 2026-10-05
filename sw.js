@@ -1,5 +1,5 @@
 /* Offline-Cache der Prüfungstrainer-App. Version hochzählen, wenn index.html geändert wird. */
-const CACHE = "spl-trainer-v3";
+const CACHE = "spl-trainer-v4";
 const DATEIEN = ["./", "./index.html", "./manifest.webmanifest", "./icon-180.png", "./icon-192.png", "./icon-512.png", "./icon-512-maskable.png"];
 
 self.addEventListener("install", e => {
