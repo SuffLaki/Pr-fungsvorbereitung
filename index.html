@@ -299,6 +299,18 @@ td.num,th.num{text-align:right;font-family:var(--schrift-daten);font-variant-num
 }
 .notiz{background:var(--achtung-weich);color:var(--achtung);border-radius:calc(var(--radius) - 2px);padding:10px 12px;font-size:.88rem}
 
+/* ---------- Autobahnkarten ---------- */
+.lernkarte .mit-bild{
+  display:flex;gap:18px;align-items:flex-start;justify-content:center;flex-wrap:wrap;text-align:left;
+}
+.lernkarte .mit-bild svg{flex:0 0 auto}
+.lernkarte .mit-bild .hinten{margin:0;max-width:42ch}
+.babraster{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:12px}
+.babfeld{margin:0;display:flex;flex-direction:column;align-items:center;gap:4px}
+.babfeld figcaption{
+  font-family:var(--schrift-display);font-weight:700;font-size:.95rem;letter-spacing:.04em;color:var(--signal-text);
+}
+
 /* ---------- Darstellung ---------- */
 .wahlreihe{display:flex;gap:6px;flex-wrap:wrap}
 .wahlreihe button{
@@ -431,6 +443,7 @@ const BEREICHE = [
 const THEMEN = [
   { id:"t_recht",  b:"lel",  name:"Speditions- und Frachtrecht" },
   { id:"t_strasse",b:"lel",  name:"Güterkraftverkehr Straße" },
+  { id:"t_bab",    b:"lel",  name:"Autobahnen A1 bis A9" },
   { id:"t_sammel", b:"lel",  name:"Sammelgut, Stückgut, Ladung" },
   { id:"t_see",    b:"lel",  name:"Seefracht" },
   { id:"t_luft",   b:"lel",  name:"Luftfracht" },
@@ -1226,7 +1239,57 @@ const FRAGEN = [
     "Ausschließlich den Stromverbrauch zu melden",
     "Eine CO₂-Steuer direkt an Kunden weiterzugeben",
     "Nur freiwillige Angaben zu machen"
-  ], a:0, e:"Für Speditionen wird die Berechnung der Transportemissionen (ISO 14083/GLEC) zur Kundenanforderung – auch wenn das eigene Unternehmen selbst nicht berichtspflichtig ist." }
+  ], a:0, e:"Für Speditionen wird die Berechnung der Transportemissionen (ISO 14083/GLEC) zur Kundenanforderung – auch wenn das eigene Unternehmen selbst nicht berichtspflichtig ist." },
+
+  /* ---------- Autobahnen A1 bis A9 ---------- */
+  { id:"f123", t:"t_bab", q:"Welche Autobahn verbindet das Ruhrgebiet über Hannover und Magdeburg mit Berlin?", o:[
+    "A2",
+    "A1",
+    "A7",
+    "A9"
+  ], a:0, e:"Die A2 (Oberhausen – Dortmund – Hannover – Magdeburg – Berliner Ring) ist die wichtigste Ost-West-Achse des deutschen Güterverkehrs und Hauptroute Richtung Polen." },
+  { id:"f124", t:"t_bab", q:"Welches ist die längste Autobahn Deutschlands?", o:[
+    "A7 von Flensburg bis Füssen",
+    "A1 von Heiligenhafen bis Saarbrücken",
+    "A3 von Emmerich bis Passau",
+    "A9 von München bis Berlin"
+  ], a:0, e:"Die A7 misst rund 965 km und reicht von der dänischen Grenze bei Flensburg über Hamburg, Hannover, Kassel, Würzburg und Ulm bis Füssen an der österreichischen Grenze." },
+  { id:"f125", t:"t_bab", q:"Eine Sendung geht von Köln nach Nürnberg. Welche Autobahn ist die Hauptroute?", o:[
+    "A3",
+    "A4",
+    "A5",
+    "A6"
+  ], a:0, e:"Die A3 führt von der niederländischen Grenze bei Emmerich über Oberhausen, Köln, Frankfurt und Würzburg nach Nürnberg, Regensburg und Passau." },
+  { id:"f126", t:"t_bab", q:"Welche Autobahn bildet die Nord-Süd-Achse entlang der Rheinschiene von Hessen über Frankfurt und Karlsruhe bis zur Schweizer Grenze?", o:[
+    "A5",
+    "A6",
+    "A8",
+    "A1"
+  ], a:0, e:"Die A5 beginnt am Hattenbacher Dreieck, verläuft über Frankfurt, Darmstadt, Heidelberg, Karlsruhe und Freiburg bis Weil am Rhein bei Basel – eine der wichtigsten Relationen in die Schweiz und nach Italien." },
+  { id:"f127", t:"t_bab", q:"Welche Besonderheit weist die A4 auf?", o:[
+    "Sie ist zwischen Olpe und dem Kirchheimer Dreieck unterbrochen",
+    "Sie ist die einzige Autobahn ohne Anschluss an eine Staatsgrenze",
+    "Sie führt ausschließlich durch die neuen Bundesländer",
+    "Sie ist durchgehend nur zweistreifig ausgebaut"
+  ], a:0, e:"Die A4 verläuft von Aachen über Köln bis Olpe, setzt erst am Kirchheimer Dreieck in Hessen wieder an und führt dann über Eisenach, Erfurt, Chemnitz und Dresden bis Görlitz an die polnische Grenze." },
+  { id:"f128", t:"t_bab", q:"Über welche Autobahn läuft der Verkehr von Stuttgart nach München?", o:[
+    "A8",
+    "A6",
+    "A7",
+    "A9"
+  ], a:0, e:"Die A8 verbindet Saarbrücken, Karlsruhe, Stuttgart, Ulm, Augsburg und München und endet bei Salzburg – eine der am stärksten belasteten Strecken Süddeutschlands." },
+  { id:"f129", t:"t_bab", q:"Welche beiden Autobahnen kreuzen sich am Autobahnkreuz Ulm/Elchingen?", o:[
+    "A7 und A8",
+    "A6 und A8",
+    "A5 und A7",
+    "A3 und A9"
+  ], a:0, e:"Hier trifft die Nord-Süd-Achse A7 (Flensburg – Füssen) auf die West-Ost-Achse A8 (Karlsruhe – Stuttgart – München). Das macht den Raum Ulm zu einem gefragten Standort für Speditions- und Logistikzentren." },
+  { id:"f130", t:"t_bab", q:"Welche Autobahn führt von Saarbrücken über Mannheim und Heilbronn nach Nürnberg und weiter zur tschechischen Grenze?", o:[
+    "A6",
+    "A3",
+    "A4",
+    "A2"
+  ], a:0, e:"Die A6 endet bei Waidhaus an der Grenze zu Tschechien und ist die südliche Ost-West-Verbindung – wichtig für Verkehre nach Tschechien, in die Slowakei und weiter nach Südosteuropa." }
 ];
 
 /* Rechenaufgaben: a = Ergebnis, tol = Toleranz, eh = Einheit, w = Rechenweg */
@@ -1338,7 +1401,17 @@ const KARTEN = [
   { id:"k57", t:"t_nachh", v:"Arbeitsschutz im Lager", h:"Gefährdungsbeurteilung, Unterweisung, PSA (Sicherheitsschuhe, Warnweste), jährliche Regalprüfung, Flurförderzeugausweis, Verbandbuch; Unfälle mit mehr als drei Tagen Ausfall an die BG melden." },
   { id:"k58", t:"t_recht", v:"SZR (Sonderziehungsrecht)", h:"Rechnungseinheit des Internationalen Währungsfonds, Grundlage aller Haftungsgrenzen im Transportrecht. Der Umrechnungskurs wird täglich veröffentlicht; für Schadensfälle gilt der Kurs am Tag der Zahlung bzw. des Urteils." },
   { id:"k59", t:"t_sammel", v:"Lademeter (ldm)", h:"Ein Lademeter ist ein laufender Meter Ladefläche über die gesamte Breite. Europalette längs 0,4 ldm, quer 0,5 ldm; Industriepalette 0,5 ldm. Übliche Umrechnung 1 ldm = 1.850 kg." },
-  { id:"k60", t:"t_zoll", v:"AEO-Status", h:"Zugelassener Wirtschaftsbeteiligter: AEO-C für zollrechtliche Vereinfachungen, AEO-S für Sicherheit in der Lieferkette. Vorteile: weniger Kontrollen, Vorrang bei der Abfertigung, Anerkennung durch Partnerländer." }
+  { id:"k60", t:"t_zoll", v:"AEO-Status", h:"Zugelassener Wirtschaftsbeteiligter: AEO-C für zollrechtliche Vereinfachungen, AEO-S für Sicherheit in der Lieferkette. Vorteile: weniger Kontrollen, Vorrang bei der Abfertigung, Anerkennung durch Partnerländer." },
+  { id:"k61", t:"t_bab", bab:"A1", v:"A1 – Verlauf", h:"Heiligenhafen (Ostsee) – Lübeck – Hamburg – Bremen – Osnabrück – Münster – Dortmund – Wuppertal – Köln – Trier – Saarbrücken. Der Abschnitt Hamburg–Bremen–Ruhrgebiet heißt Hansalinie und ist eine der wichtigsten Stückgutrelationen." },
+  { id:"k62", t:"t_bab", bab:"A2", v:"A2 – Verlauf", h:"Oberhausen – Dortmund – Bielefeld – Hannover – Braunschweig – Magdeburg – Berliner Ring. Wichtigste Ost-West-Achse des Güterverkehrs und Hauptroute Richtung Polen; dicht belegt mit Logistikzentren." },
+  { id:"k63", t:"t_bab", bab:"A3", v:"A3 – Verlauf", h:"Emmerich/Elten (Grenze NL) – Oberhausen – Düsseldorf – Köln – Frankfurt – Würzburg – Nürnberg – Regensburg – Passau (Grenze AT). Verbindet die Rhein-Ruhr-Region mit dem Südosten und den Seehäfen der Nordsee über das Rheinland." },
+  { id:"k64", t:"t_bab", bab:"A4", v:"A4 – Verlauf", h:"Aachen – Köln – Olpe, dann Unterbrechung, ab Kirchheimer Dreieck weiter über Eisenach – Erfurt – Gera – Chemnitz – Dresden – Görlitz (Grenze PL). Einzige große Autobahn mit einer Lücke im Verlauf." },
+  { id:"k65", t:"t_bab", bab:"A5", v:"A5 – Verlauf", h:"Hattenbacher Dreieck – Gießen – Frankfurt – Darmstadt – Heidelberg – Karlsruhe – Freiburg – Weil am Rhein (Grenze CH). Nord-Süd-Achse der Rheinschiene, Hauptroute in die Schweiz und nach Italien." },
+  { id:"k66", t:"t_bab", bab:"A6", v:"A6 – Verlauf", h:"Saarbrücken (Grenze FR) – Kaiserslautern – Mannheim – Heilbronn – Nürnberg – Amberg – Waidhaus (Grenze CZ). Südliche West-Ost-Verbindung nach Tschechien und Südosteuropa." },
+  { id:"k67", t:"t_bab", bab:"A7", v:"A7 – Verlauf", h:"Flensburg/Ellund (Grenze DK) – Hamburg – Hannover – Kassel – Fulda – Würzburg – Ulm – Kempten – Füssen (Grenze AT). Mit rund 965 km die längste deutsche Autobahn und die zentrale Nord-Süd-Achse Skandinavien–Alpen." },
+  { id:"k68", t:"t_bab", bab:"A8", v:"A8 – Verlauf", h:"Perl/Schengen (Grenze LU) – Saarbrücken – Karlsruhe – Pforzheim – Stuttgart – Ulm – Augsburg – München – Salzburg (Grenze AT). Hauptachse Baden-Württemberg–Bayern, abschnittsweise stark überlastet." },
+  { id:"k69", t:"t_bab", bab:"A9", v:"A9 – Verlauf", h:"München – Ingolstadt – Nürnberg – Bayreuth – Hof – Leipzig – Dessau – Berlin. Verbindet die beiden größten Wirtschaftsräume Bayerns mit Mitteldeutschland und Berlin." },
+  { id:"k70", t:"t_bab", v:"Merkhilfe: gerade und ungerade Autobahnnummern", h:"Einstellige Autobahnen mit ungerader Nummer (A1, A3, A5, A7, A9) verlaufen überwiegend in Nord-Süd-Richtung, solche mit gerader Nummer (A2, A4, A6, A8) überwiegend in West-Ost-Richtung. Die Nummern steigen von West nach Ost bzw. von Nord nach Süd." }
 ];
 
 /* Nachschlagetabellen */
@@ -1421,6 +1494,20 @@ const TABELLEN = [
       ["Präferenznachweis","Ursprungserklärung, EUR.1 oder REX-Erklärung für Zollvorteile"]
     ],
     fuss:"Ausfuhranmeldungen sind grundsätzlich ab einem Warenwert von 1.000 EUR elektronisch abzugeben." },
+  { id:"tb_bab", titel:"Autobahnen A1 bis A9",
+    kopf:["Autobahn","Verlauf","Bedeutung im Güterverkehr"],
+    zeilen:[
+      ["A1 · rund 750 km","Heiligenhafen – Lübeck – Hamburg – Bremen – Osnabrück – Dortmund – Köln – Trier – Saarbrücken","Hansalinie: Nordseehäfen und Hamburg an das Ruhrgebiet und die Rheinschiene"],
+      ["A2 · rund 475 km","Oberhausen – Dortmund – Hannover – Magdeburg – Berliner Ring","Wichtigste Ost-West-Achse, Hauptroute nach Polen, Kette großer Logistikzentren"],
+      ["A3 · rund 775 km","Emmerich (NL) – Oberhausen – Köln – Frankfurt – Würzburg – Nürnberg – Passau (AT)","Rhein-Ruhr in den Südosten, Anschluss an Österreich und Südosteuropa"],
+      ["A4 · rund 585 km","Aachen – Köln – Olpe ⟂ Kirchheimer Dreieck – Erfurt – Dresden – Görlitz (PL)","Verbindung Benelux – Mitteldeutschland – Polen; Verlauf unterbrochen"],
+      ["A5 · rund 445 km","Hattenbacher Dreieck – Frankfurt – Karlsruhe – Freiburg – Weil am Rhein (CH)","Nord-Süd-Achse der Rheinschiene, Hauptroute in die Schweiz und nach Italien"],
+      ["A6 · rund 485 km","Saarbrücken (FR) – Mannheim – Heilbronn – Nürnberg – Waidhaus (CZ)","Südliche West-Ost-Verbindung nach Tschechien und Südosteuropa"],
+      ["A7 · rund 965 km","Flensburg (DK) – Hamburg – Hannover – Kassel – Würzburg – Ulm – Füssen (AT)","Längste deutsche Autobahn, zentrale Nord-Süd-Achse Skandinavien – Alpen"],
+      ["A8 · rund 500 km","Perl (LU) – Saarbrücken – Karlsruhe – Stuttgart – Ulm – München – Salzburg (AT)","Hauptachse Baden-Württemberg – Bayern, stark belastet"],
+      ["A9 · rund 530 km","München – Ingolstadt – Nürnberg – Hof – Leipzig – Berlin","Bayern – Mitteldeutschland – Berlin, wichtige Nord-Süd-Verbindung im Osten"]
+    ],
+    fuss:"Merkhilfe: ungerade Nummern verlaufen überwiegend Nord-Süd, gerade überwiegend West-Ost. Längenangaben gerundet. Das Autobahnkreuz Ulm/Elchingen verbindet A7 und A8." },
   { id:"tb_sozial", titel:"Sozialversicherung 2026",
     kopf:["Zweig","Beitragssatz","Träger / Aufteilung"],
     zeilen:[
@@ -1453,6 +1540,32 @@ const FACHGESPRAECH = {
     "Zahlen immer mit Einheit nennen, Rundungen benennen.",
     "Bei Unsicherheit die Annahme offenlegen: „Ich gehe davon aus, dass …“ und dann weiterrechnen."
   ]
+};
+
+/* Deutschlandumriss und Autobahnverläufe, aus Geokoordinaten projiziert */
+const DE_UMRISS = "M79.1 11.1 L89.4 20.2 L93.5 22.5 L104.8 24.8 L110 31.7 L112 24.2 L107.9 37.2 L106.9 40.5 L115.1 37.2 L126.5 32.3 L133.7 31.3 L141.9 29.1 L152.2 22.5 L158.4 18.6 L166.6 24.2 L170.7 34.6 L177.9 35.6 L179 45.4 L179 54.6 L180 66.7 L175.9 76.5 L184.1 89.6 L187.2 101 L188.2 109.2 L187.2 119 L194 130.5 L189.7 139.7 L181 141.9 L170.7 137 L158.4 142.6 L141.9 153.4 L133.7 158.3 L135.7 163.2 L137.8 168.1 L142.9 177.9 L151.2 189.4 L159.4 199.2 L169.3 208 L161.5 214.9 L152.2 216.5 L150.1 225.4 L149.1 235.2 L152.2 243.4 L141.9 247.3 L123.4 249.3 L115.1 252.2 L109 249.9 L99.7 248.9 L92.5 244 L89.4 248.3 L76 245 L67.8 240.1 L61.6 243.4 L48.8 246 L40.8 247.3 L40.4 236.8 L43.1 220.5 L51.3 207.4 L53.4 200.8 L49.2 198.5 L41 199.2 L28.7 196.9 L24.5 191 L15.7 185.5 L12.2 174.7 L11.1 163.2 L15.3 156.7 L10.1 148.5 L8.1 143.6 L6 133.8 L11.1 127.2 L10.1 119 L8.1 110.9 L11.1 107.6 L22.5 102.7 L29.7 96.1 L29.7 88 L29.7 81.4 L32.8 70 L32.8 63.4 L29.7 59.2 L22.5 52 L32.8 47.1 L49.2 48.7 L52.3 41.2 L59.5 40.5 L66.7 37.2 L62.6 27.4 L65.7 19.2 L61.6 12.7 L62.6 7.8 Z";
+const BAB_ROUTEN = {
+  "A1": [[110.6,25.1],[104.6,41.5],[90.4,52],[65.9,67.3],[50.3,93.5],[41.6,104],[38.3,118.7],[31.7,126.9],[27.8,137.4],[21.2,176],[28.7,193.3]],
+  "A2": [[25.6,120],[38.3,118.7],[60.2,102],[85.1,90.6],[101.1,93.8],[124,98.4],[160.4,85.7]],
+  "A3": [[13.2,108.2],[25.6,120],[24.1,127.9],[27.8,137.4],[63.2,164.5],[89,175],[112.7,186.1],[133.7,200.2],[161.1,214.9]],
+  "A4a": [[9.7,142.6],[27.8,137.4],[46.2,134.4]],
+  "A4b": [[81.4,141.3],[97,136.1],[111.6,136.1],[133.3,139.3],[150.6,141],[167.4,133.8],[193.2,130.5]],
+  "A5": [[80.5,140.6],[63.2,149.1],[63.2,164.5],[62.6,172.4],[63.5,187.8],[57.5,200.5],[46.2,233.6],[41.4,246.6]],
+  "A6": [[28.7,193.3],[44.5,186.4],[58.9,184.8],[74.4,196.3],[112.7,186.1],[128.7,186.4],[141.9,179.9]],
+  "A7": [[78.9,11.7],[90.4,52],[85.1,90.6],[80.1,124.9],[83.8,150.1],[89,175],[90.2,220.5],[96.8,242.4],[104.8,247.6]],
+  "A8": [[15.7,185.5],[28.7,193.3],[57.5,200.5],[63.7,204.4],[73.5,208],[90.2,220.5],[109,221.5],[123,229],[151.2,241.7]],
+  "A9": [[123,229],[119.9,208.7],[112.7,186.1],[123,169.8],[130,158],[139.2,124.3],[136.5,108.2],[160.4,85.7]],
+};
+const BAB_ORTE = {
+  "A1": [["Hamburg",90.4,52],["Bremen",65.9,67.3],["Dortmund",38.3,118.7],["Köln",27.8,137.4],["Saarbrücken",28.7,193.3]],
+  "A2": [["Oberhausen",25.6,120],["Hannover",85.1,90.6],["Magdeburg",124,98.4],["Berlin",160.4,85.7]],
+  "A3": [["Emmerich",13.2,108.2],["Köln",27.8,137.4],["Frankfurt",63.2,164.5],["Nürnberg",112.7,186.1],["Passau",161.1,214.9]],
+  "A4": [["Aachen",9.7,142.6],["Olpe",46.2,134.4],["Erfurt",111.6,136.1],["Dresden",167.4,133.8],["Görlitz",193.2,130.5]],
+  "A5": [["Frankfurt",63.2,164.5],["Karlsruhe",57.5,200.5],["Freiburg",46.2,233.6],["Basel",41.4,246.6]],
+  "A6": [["Saarbrücken",28.7,193.3],["Mannheim",58.9,184.8],["Nürnberg",112.7,186.1],["Waidhaus",141.9,179.9]],
+  "A7": [["Flensburg",78.9,11.7],["Hamburg",90.4,52],["Kassel",80.1,124.9],["Würzburg",89,175],["Ulm",90.2,220.5],["Füssen",104.8,247.6]],
+  "A8": [["Karlsruhe",57.5,200.5],["Stuttgart",73.5,208],["Ulm",90.2,220.5],["München",123,229],["Salzburg",151.2,241.7]],
+  "A9": [["München",123,229],["Nürnberg",112.7,186.1],["Leipzig",139.2,124.3],["Berlin",160.4,85.7]],
 };
 
 /* ===================== Zustand und Speicherung ===================== */
@@ -1837,6 +1950,64 @@ function themenAuswahl(id, wert, bereichFilter) {
   return '<label class="feld" style="max-width:330px"><span>Thema</span><select id="' + id + '">' + o + "</select></label>";
 }
 
+/* ---------- Autobahnkarten ---------- */
+/* Zeichnet den Umriss Deutschlands und darin den Verlauf einer Autobahn.
+   Inline-SVG, weil veröffentlichte Seiten keine externen Bilder laden dürfen. */
+function babSvg(nr, breite) {
+  const teile = BAB_ROUTEN[nr] ? [nr] : Object.keys(BAB_ROUTEN).filter(k => k.indexOf(nr) === 0);
+  if (!teile.length) return "";
+  const b = breite || 150;
+  const mitOrten = b >= 140 && BAB_ORTE[nr];
+  let linien = "", enden = "", orte = "";
+  teile.forEach(t => {
+    const ps = BAB_ROUTEN[t];
+    linien += '<polyline points="' + ps.map(p => p[0] + "," + p[1]).join(" ") + '" fill="none" ' +
+      'style="stroke:var(--signal);stroke-width:5;stroke-linejoin:round;stroke-linecap:round"/>';
+    [ps[0], ps[ps.length - 1]].forEach(p => {
+      enden += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="4" ' +
+        'style="fill:var(--flaeche);stroke:var(--signal);stroke-width:2.5"/>';
+    });
+  });
+  if (mitOrten) {
+    /* Beschriftungen weichen senkrecht aus, wenn sie sich sonst überlagern
+       (betrifft vor allem die West-Ost-Autobahnen). */
+    const belegt = [];
+    BAB_ORTE[nr].forEach(o => {
+      const name = o[0], x = o[1];
+      const rechts = x < 100;
+      const weite = name.length * 5.1 + 7;
+      const x1 = rechts ? x : x - weite, x2 = rechts ? x + weite : x;
+      let y = o[2] + 3.2;
+      for (let versuch = 0; versuch < 6; versuch++) {
+        const stoert = belegt.some(b => x1 < b.x2 && x2 > b.x1 && Math.abs(y - b.y) < 9.5);
+        if (!stoert) break;
+        y = o[2] + 3.2 + (versuch % 2 === 0 ? 1 : -1) * 10.5 * Math.ceil((versuch + 1) / 2);
+      }
+      belegt.push({ x1: x1, x2: x2, y: y });
+      orte += '<circle cx="' + x + '" cy="' + o[2] + '" r="2.6" style="fill:var(--text)"/>' +
+        (Math.abs(y - o[2] - 3.2) > 1
+          ? '<line x1="' + x + '" y1="' + o[2] + '" x2="' + (x + (rechts ? 5 : -5)) + '" y2="' + (y - 3) + '" ' +
+            'style="stroke:var(--linie-stark);stroke-width:0.9"/>'
+          : "") +
+        '<text x="' + (x + (rechts ? 6 : -6)) + '" y="' + y + '" text-anchor="' + (rechts ? "start" : "end") + '" ' +
+        'style="font-family:var(--schrift-text);font-size:9.5px;font-weight:600;fill:var(--text);' +
+        'stroke:var(--flaeche2);stroke-width:3;paint-order:stroke fill">' + esc(name) + "</text>";
+    });
+  }
+  return '<svg viewBox="0 0 200 260" width="' + b + '" height="' + Math.round(b * 1.3) + '" ' +
+    'role="img" aria-label="Verlauf der ' + nr + ' auf der Karte von Deutschland">' +
+    '<path d="' + DE_UMRISS + '" style="fill:var(--flaeche2);stroke:var(--linie-stark);stroke-width:1.2;stroke-linejoin:round"/>' +
+    linien + orte + enden + "</svg>";
+}
+
+/* Tafel mit allen neun Autobahnen, unter der Nachschlagetabelle */
+function babTafel() {
+  return '<div class="karte-leib"><div class="babraster">' +
+    ["A1","A2","A3","A4","A5","A6","A7","A8","A9"].map(nr =>
+      '<figure class="babfeld">' + babSvg(nr, 96) + "<figcaption>" + nr + "</figcaption></figure>").join("") +
+    '</div></div>';
+}
+
 /* ===================== Lernkarten ===================== */
 function rKarten() {
   if (!S.lern.stapel.length) {
@@ -1862,7 +2033,13 @@ function rKarten() {
   html += '<div class="karte lernkarte" id="lern-karte" tabindex="0" role="button" aria-label="Karte aufdecken">' +
     '<div class="reihe" style="justify-content:center"><span class="chip signal">' + esc(thema(karte.t).name) + '</span><span class="chip">Box ' + box + ' von 5</span></div>' +
     '<div class="vorn">' + esc(karte.v) + "</div>" +
-    (S.lern.aufgedeckt ? '<div class="hinten">' + esc(karte.h) + "</div>" : '<div class="tipp">Tippen oder Leertaste zum Aufdecken</div>') +
+    (S.lern.aufgedeckt
+      ? (karte.bab
+          ? '<div class="mit-bild">' + babSvg(karte.bab, 196) + '<div class="hinten">' + esc(karte.h) + "</div></div>"
+          : '<div class="hinten">' + esc(karte.h) + "</div>")
+      : (karte.bab
+          ? '<div class="tipp">Tippen oder Leertaste zum Aufdecken – mit Kartenbild</div>'
+          : '<div class="tipp">Tippen oder Leertaste zum Aufdecken</div>')) +
     "</div>";
 
   if (S.lern.aufgedeckt) {
@@ -2337,7 +2514,8 @@ function rTabellen() {
     html += '<div class="karte"><div class="karte-kopf"><h3>' + esc(t.titel) + '</h3></div><div class="tabelle-rahmen"><table><thead><tr>' +
       t.kopf.map((k, i) => "<th" + (i > 0 && t.kopf.length > 2 ? "" : "") + ">" + esc(k) + "</th>").join("") + "</tr></thead><tbody>" +
       t.zeilen.map(z => "<tr>" + z.map(c => "<td>" + esc(c) + "</td>").join("") + "</tr>").join("") +
-      "</tbody></table></div>" + (t.fuss ? '<div class="karte-leib"><p class="hinweis">' + esc(t.fuss) + "</p></div>" : "") + "</div>";
+      "</tbody></table></div>" + (t.id === "tb_bab" ? babTafel() : "") +
+      (t.fuss ? '<div class="karte-leib"><p class="hinweis">' + esc(t.fuss) + "</p></div>" : "") + "</div>";
   });
   $("#v-tabellen").innerHTML = html;
 }
